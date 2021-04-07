@@ -1,0 +1,3 @@
+include ':app'
+include ':geopositionmodule'
+rootProject.name = "Geolocation Demo"

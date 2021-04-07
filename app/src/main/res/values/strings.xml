@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Geolocation Demo</string>
+    <string name="toast">Показать Toast</string>
+</resources>
