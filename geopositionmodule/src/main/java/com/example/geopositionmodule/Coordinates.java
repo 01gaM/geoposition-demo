@@ -1,5 +1,7 @@
 package com.example.geopositionmodule;
 
+import android.location.Location;
+
 public class Coordinates {
     private double longitude;
     private double latitude;
@@ -7,6 +9,11 @@ public class Coordinates {
     public Coordinates(double longitude, double latitude){
         this.longitude = longitude;
         this.latitude = latitude;
+    }
+
+    public Coordinates(Location location){
+        this.longitude = location.getLongitude();
+        this.latitude = location.getLatitude();
     }
 
     public double getLongitude() {

@@ -7,14 +7,13 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.location.LocationProvider;
+
 import android.os.Bundle;
 
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 
-public class LocationReceiver implements LocationListener {
+public class LocationReceiver implements LocationListener, LocationProvider {
     private Location currLocation;
     private Activity activity;
     private LocationManager locationManager;
@@ -47,18 +46,6 @@ public class LocationReceiver implements LocationListener {
     }
 
 
-    public Coordinates getCurrentLocation() {
-        enableMyLocation();
-        //TODO: add exception
-        if (currLocation == null) {
-            return new Coordinates(0.0, 0.0);
-        }
-        double lon = currLocation.getLongitude(); //longitude
-        double lat = currLocation.getLatitude(); //latitude
-
-        return new Coordinates(lon, lat);
-    }
-
     @Override
     public void onLocationChanged(Location location) {
         currLocation = location;
@@ -79,5 +66,33 @@ public class LocationReceiver implements LocationListener {
     public void onProviderDisabled(String s) {
         //TODO: check this
         //enableMyLocation();
+    }
+
+    @Override
+    public Coordinates getLastKnownLocation() {
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if (location != null) {
+                return new Coordinates(location);
+            }
+        }
+        //TODO: throw exception
+        return new Coordinates(0.0, 0.0);
+    }
+
+    @Override
+    public Coordinates requestCurrentLocation() {
+        enableMyLocation();
+        //TODO: throw exception
+        if (currLocation == null) {
+            return new Coordinates(0.0, 0.0);
+        }
+        return new Coordinates(currLocation);
+    }
+
+    @Override
+    public Coordinates requestLocationUpdates(int intervalMin) {
+        return null;
     }
 }

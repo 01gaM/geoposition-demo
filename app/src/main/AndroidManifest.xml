@@ -15,6 +15,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".CurrCoordinatesActivity"></activity>
+        <activity android:name=".LastCoordinatesActivity"></activity>
+        <activity android:name=".UpdateCoordinatesActivity"></activity>
+
     </application>
 
 </manifest>

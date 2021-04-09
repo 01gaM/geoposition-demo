@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">Geolocation Demo</string>
-    <string name="toast">Текущие координаты</string>
+    <string name="current_coordinates">Текущие координаты</string>
+    <string name="last_coordinates">Последние координаты</string>
+    <string name="update_coordinates">Подписаться на обновление координат</string>
+    <string name="request_coordinates">Запросить координаты</string>
+    <string name="enter_interval">Введите интервал обновления координат в минутах:</string>
+    <string name="receive_coordinates">Получать координаты</string>
 </resources>
