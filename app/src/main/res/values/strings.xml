@@ -6,4 +6,6 @@
     <string name="request_coordinates">Запросить координаты</string>
     <string name="enter_interval">Введите интервал обновления координат в минутах:</string>
     <string name="receive_coordinates">Получать координаты</string>
+    <string name="timer_start_value">%02d:%02d с момента запроса</string>
+    <string name="waiting_for_update">Ожидаение обновления координат:</string>
 </resources>

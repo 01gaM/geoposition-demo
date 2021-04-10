@@ -9,11 +9,15 @@ import android.widget.Button;
 
 
 public class MainActivity extends AppCompatActivity {
+    private Button currCoordinatesButton;
+    private Button lastCoordinatesButton;
+    private Button updateCoordinatesButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        final Button currCoordinatesButton = findViewById(R.id.button_curr_coordinates);
+        currCoordinatesButton = findViewById(R.id.button_curr_coordinates);
         Button.OnClickListener currListener = new Button.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -23,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
         };
         currCoordinatesButton.setOnClickListener(currListener);
 
-        final Button lastCoordinatesButton = findViewById(R.id.button_last_coordinates);
+        lastCoordinatesButton = findViewById(R.id.button_last_coordinates);
         Button.OnClickListener lastListener = new Button.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -33,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
         };
         lastCoordinatesButton.setOnClickListener(lastListener);
 
-        final Button updateCoordinatesButton = findViewById(R.id.button_update_coordinates);
+        updateCoordinatesButton = findViewById(R.id.button_update_coordinates);
         Button.OnClickListener updateListener = new Button.OnClickListener() {
             @Override
             public void onClick(View view) {

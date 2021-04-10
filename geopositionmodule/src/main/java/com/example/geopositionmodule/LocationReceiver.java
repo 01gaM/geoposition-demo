@@ -69,7 +69,7 @@ public class LocationReceiver implements LocationListener, LocationProvider {
     }
 
     @Override
-    public Coordinates getLastKnownLocation() {
+    public Coordinates getLastKnownLocation() throws Exception {
         if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
@@ -77,16 +77,14 @@ public class LocationReceiver implements LocationListener, LocationProvider {
                 return new Coordinates(location);
             }
         }
-        //TODO: throw exception
-        return new Coordinates(0.0, 0.0);
+        throw new Exception("Location is null!");
     }
 
     @Override
-    public Coordinates requestCurrentLocation() {
+    public Coordinates requestCurrentLocation() throws Exception {
         enableMyLocation();
-        //TODO: throw exception
         if (currLocation == null) {
-            return new Coordinates(0.0, 0.0);
+            throw new Exception("Current location is null!");
         }
         return new Coordinates(currLocation);
     }

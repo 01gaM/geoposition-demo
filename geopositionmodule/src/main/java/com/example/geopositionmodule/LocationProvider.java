@@ -5,7 +5,7 @@ public interface LocationProvider {
 //    fun requestCurrentLocation(callback: (LanLng) -> Unit) // в callback асинхронно должен передаться результат запроса
 //    fun requestLocationUpdates(intervalMin: Int, callback: (LanLng) -> Unit)
 
-    Coordinates getLastKnownLocation();
-    Coordinates requestCurrentLocation();
+    Coordinates getLastKnownLocation() throws Exception;
+    Coordinates requestCurrentLocation() throws Exception;
     Coordinates requestLocationUpdates(int intervalMin);
 }
