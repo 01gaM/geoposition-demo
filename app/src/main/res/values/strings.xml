@@ -8,4 +8,5 @@
     <string name="receive_coordinates">Получать координаты</string>
     <string name="timer_start_value">%02d:%02d с момента запроса</string>
     <string name="waiting_for_update">Ожидаение обновления координат:</string>
+    <string name="request_in_progress">Запрос обрабатывается</string>
 </resources>
