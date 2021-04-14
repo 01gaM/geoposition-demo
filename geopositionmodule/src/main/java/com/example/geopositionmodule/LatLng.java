@@ -2,18 +2,17 @@ package com.example.geopositionmodule;
 
 import android.location.Location;
 
-public class Coordinates {
+public class LatLng {
     private double longitude;
     private double latitude;
 
-    public Coordinates(double longitude, double latitude){
+    public LatLng(double longitude, double latitude) {
         this.longitude = longitude;
         this.latitude = latitude;
     }
 
-    public Coordinates(Location location){
-        this.longitude = location.getLongitude();
-        this.latitude = location.getLatitude();
+    public LatLng(Location location) {
+        this(location.getLongitude(), location.getLatitude());
     }
 
     public double getLongitude() {
@@ -34,7 +33,7 @@ public class Coordinates {
 
     @Override
     public String toString() {
-        return  "lon=" + longitude +
+        return "lon=" + longitude +
                 ", lat=" + latitude;
     }
 }
