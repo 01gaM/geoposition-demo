@@ -20,11 +20,8 @@ public class LastCoordinatesActivity extends Activity implements Alertable {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_last_coordinates);
         showToastButton = findViewById(R.id.request_last_coordinates_button);
-        try {
-            locationReceiver = new LocationProvider(LastCoordinatesActivity.this);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        locationReceiver = new LocationProvider(LastCoordinatesActivity.this);
+
         Button.OnClickListener listener = new Button.OnClickListener() {
             @Override
             public void onClick(View view) {

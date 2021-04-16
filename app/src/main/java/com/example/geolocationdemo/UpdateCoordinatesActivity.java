@@ -12,6 +12,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.geopositionmodule.ILocationCallback;
+import com.example.geopositionmodule.LatLng;
+import com.example.geopositionmodule.LocationProvider;
+import com.example.geopositionmodule.NoLocationAccessException;
+
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -22,11 +27,13 @@ public class UpdateCoordinatesActivity extends Activity implements Alertable {
     private CountDownTimer cTimer = null;
     private TextView waitingMessage;
     private final double MIN_UPDATE_INTERVAL = 0.1;
+    private LocationProvider locationProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_coordinates);
+        locationProvider = new LocationProvider(UpdateCoordinatesActivity.this);
         showToastButton = findViewById(R.id.request_coordinates_updates_button);
         tvTimer = findViewById(R.id.timerTextView);
         waitingMessage = findViewById(R.id.waitingMessageTextView);
@@ -50,10 +57,11 @@ public class UpdateCoordinatesActivity extends Activity implements Alertable {
             }
         });
 
-        // final LocationReceiver locationReceiver = new LocationReceiver(UpdateCoordinatesActivity.this);
+
         Button.OnClickListener listener = new Button.OnClickListener() {
             @Override
             public void onClick(View view) {
+                locationProvider.stopLocationUpdates();
                 if (cTimer != null)
                     cTimer.cancel();
                 double minutes = Double.parseDouble(editDelay.getText().toString());
@@ -62,7 +70,22 @@ public class UpdateCoordinatesActivity extends Activity implements Alertable {
                     waitingMessage.setVisibility(View.INVISIBLE);
                     tvTimer.setVisibility(View.INVISIBLE);
                 } else {
-                    startTimer(minutes);
+                    try {
+                        ILocationCallback myCallback = new ILocationCallback() {
+                            @Override
+                            public void callbackCall(LatLng lastUpdatedLocation) {
+                                Toast toast = Toast.makeText(UpdateCoordinatesActivity.this, lastUpdatedLocation.toString(), Toast.LENGTH_LONG);
+                                toast.setGravity(Gravity.TOP, 0, 400);
+                                toast.show();
+                                cTimer.start(); //restart timer
+                            }
+                        };
+                        locationProvider.requestLocationUpdates(minutes, myCallback);
+                        startTimer(minutes);
+                    } catch (NoLocationAccessException e) {
+                        e.printStackTrace();
+                        displayAlert(e.getMessage(), UpdateCoordinatesActivity.this);
+                    }
                 }
             }
         };
@@ -73,6 +96,7 @@ public class UpdateCoordinatesActivity extends Activity implements Alertable {
     protected void onDestroy() {
         if (cTimer != null)
             cTimer.cancel();
+        locationProvider.stopLocationUpdates();
         super.onDestroy();
     }
 
@@ -89,10 +113,6 @@ public class UpdateCoordinatesActivity extends Activity implements Alertable {
 
             public void onFinish() {
                 showToastButton.setEnabled(true);
-                Toast toast = Toast.makeText(UpdateCoordinatesActivity.this, String.valueOf(minutesInterval), Toast.LENGTH_LONG);
-                toast.setGravity(Gravity.TOP, 0, 400);
-                toast.show();
-                cTimer.start(); //restart timer
             }
         };
         cTimer.start();

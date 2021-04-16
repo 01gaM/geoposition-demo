@@ -5,7 +5,8 @@ public interface ILocationProvider {
 //    fun requestCurrentLocation(callback: (LatLng) -> Unit) // в callback асинхронно должен передаться результат запроса
 //    fun requestLocationUpdates(intervalMin: Int, callback: (LatLng) -> Unit)
 
-    LatLng getLastKnownLocation() throws Exception;
-    LatLng requestCurrentLocation() throws Exception;
-    LatLng requestLocationUpdates(int intervalMin);
+    LatLng getLastKnownLocation() throws NullPointerException, NoLocationAccessException;
+    void requestCurrentLocation(ILocationCallback callback) throws NullPointerException, NoLocationAccessException;
+    //TODO: change intervalMin type to int
+    void requestLocationUpdates(double intervalMin, ILocationCallback callback) throws NoLocationAccessException;
 }
