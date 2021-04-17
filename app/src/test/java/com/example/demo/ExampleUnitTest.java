@@ -1,4 +1,4 @@
-package com.example.geolocationdemo;
+package com.example.demo;
 
 import org.junit.Test;
 

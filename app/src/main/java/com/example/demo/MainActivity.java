@@ -1,4 +1,4 @@
-package com.example.geolocationdemo;
+package com.example.demo;
 
 import androidx.appcompat.app.AppCompatActivity;
 

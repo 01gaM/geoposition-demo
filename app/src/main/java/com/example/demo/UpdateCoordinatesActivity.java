@@ -1,4 +1,4 @@
-package com.example.geolocationdemo;
+package com.example.demo;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -12,9 +12,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.geopositionmodule.AccuracyPriority;
+import com.example.geopositionmodule.GooglePlayServicesNotAvailableException;
 import com.example.geopositionmodule.ILocationCallback;
 import com.example.geopositionmodule.LatLng;
 import com.example.geopositionmodule.LocationProvider;
+import com.example.geopositionmodule.LocationProviderDisabledException;
 import com.example.geopositionmodule.NoLocationAccessException;
 
 import java.util.Locale;
@@ -33,11 +36,16 @@ public class UpdateCoordinatesActivity extends Activity implements Alertable {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_coordinates);
-        locationProvider = new LocationProvider(UpdateCoordinatesActivity.this);
         showToastButton = findViewById(R.id.request_coordinates_updates_button);
         tvTimer = findViewById(R.id.timerTextView);
         waitingMessage = findViewById(R.id.waitingMessageTextView);
         editDelay = findViewById(R.id.editTextNumber);
+        try {
+            locationProvider = new LocationProvider(UpdateCoordinatesActivity.this);
+        } catch (GooglePlayServicesNotAvailableException e) {
+            displayAlert(e.getMessage(), UpdateCoordinatesActivity.this, true);
+            e.printStackTrace();
+        }
         editDelay.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -66,7 +74,8 @@ public class UpdateCoordinatesActivity extends Activity implements Alertable {
                     cTimer.cancel();
                 double minutes = Double.parseDouble(editDelay.getText().toString());
                 if (minutes < MIN_UPDATE_INTERVAL) {
-                    displayAlert(String.format(Locale.US, "Минимальное допустимое значение интервала = %.1f мин", MIN_UPDATE_INTERVAL), UpdateCoordinatesActivity.this);
+                    displayAlert(String.format(Locale.US, "Минимальное допустимое значение интервала = %.1f мин", MIN_UPDATE_INTERVAL),
+                            UpdateCoordinatesActivity.this, false);
                     waitingMessage.setVisibility(View.INVISIBLE);
                     tvTimer.setVisibility(View.INVISIBLE);
                 } else {
@@ -82,9 +91,9 @@ public class UpdateCoordinatesActivity extends Activity implements Alertable {
                         };
                         locationProvider.requestLocationUpdates(minutes, myCallback);
                         startTimer(minutes);
-                    } catch (NoLocationAccessException e) {
+                    } catch (NoLocationAccessException | LocationProviderDisabledException e) {
                         e.printStackTrace();
-                        displayAlert(e.getMessage(), UpdateCoordinatesActivity.this);
+                        displayAlert(e.getMessage(), UpdateCoordinatesActivity.this, true);
                     }
                 }
             }
@@ -96,7 +105,8 @@ public class UpdateCoordinatesActivity extends Activity implements Alertable {
     protected void onDestroy() {
         if (cTimer != null)
             cTimer.cancel();
-        locationProvider.stopLocationUpdates();
+        if (locationProvider != null)
+            locationProvider.stopLocationUpdates();
         super.onDestroy();
     }
 

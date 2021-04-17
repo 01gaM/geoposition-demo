@@ -1,4 +1,4 @@
-package com.example.geolocationdemo;
+package com.example.demo;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -9,9 +9,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.geopositionmodule.AccuracyPriority;
+import com.example.geopositionmodule.GooglePlayServicesNotAvailableException;
 import com.example.geopositionmodule.ILocationCallback;
 import com.example.geopositionmodule.LatLng;
 import com.example.geopositionmodule.LocationProvider;
+import com.example.geopositionmodule.LocationProviderDisabledException;
 import com.example.geopositionmodule.NoLocationAccessException;
 
 public class CurrCoordinatesActivity extends Activity implements Alertable {
@@ -27,7 +30,12 @@ public class CurrCoordinatesActivity extends Activity implements Alertable {
         showToastButton = findViewById(R.id.request_curr_coordinates_button);
         progressBar = findViewById(R.id.progressBar);
         progressMessage = findViewById(R.id.request_in_progress_message);
-        locationReceiver = new LocationProvider(CurrCoordinatesActivity.this);
+        try {
+            locationReceiver = new LocationProvider(CurrCoordinatesActivity.this);
+        } catch (GooglePlayServicesNotAvailableException e) {
+            displayAlert(e.getMessage(), CurrCoordinatesActivity.this, true);
+            e.printStackTrace();
+        }
 
         Button.OnClickListener listener = new Button.OnClickListener() {
             @Override
@@ -46,9 +54,12 @@ public class CurrCoordinatesActivity extends Activity implements Alertable {
                         }
                     };
                     locationReceiver.requestCurrentLocation(myCallback);
-                } catch (NullPointerException | NoLocationAccessException e) {
+                } catch (NoLocationAccessException | LocationProviderDisabledException e) {
                     e.printStackTrace();
-                    displayAlert(e.getMessage(), CurrCoordinatesActivity.this);
+                    displayAlert(e.getMessage(), CurrCoordinatesActivity.this, true);
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                    displayAlert(e.getMessage(), CurrCoordinatesActivity.this, false);
                 }
             }
         };

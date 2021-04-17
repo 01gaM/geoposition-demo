@@ -2,8 +2,10 @@ package com.example.geopositionmodule;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Looper;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -24,103 +26,133 @@ public class LocationProvider implements ILocationProvider {
     private Activity activity;
     private static FusedLocationProviderClient fusedLocationProviderClient;
     private LocationCallback updateLocationCallback = null;
+    private int accuracyPriority = AccuracyPriority.PRIORITY_HIGH_ACCURACY.getCode();
 
-    public LocationProvider(Activity activity) {
+
+    public LocationProvider(Activity activity) throws GooglePlayServicesNotAvailableException {
         this.activity = activity;
-        if (checkGooglePlayServices()) {
+        if (googlePlayServicesAvailable()) {
             LocationProvider.fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(activity);
-        } else {
-            //TODO: new exception
+            if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                LocationProvider.fusedLocationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        LocationProvider.lastLocation = location;
+                    }
+                });
+            }
         }
     }
 
-    private boolean checkGooglePlayServices() {
+    public void setAccuracyPriority(AccuracyPriority accuracyPriority){
+        this.accuracyPriority = accuracyPriority.getCode();
+    }
+
+
+    private boolean googlePlayServicesAvailable() throws GooglePlayServicesNotAvailableException {
         GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
         int resultCode = apiAvailability.isGooglePlayServicesAvailable(activity);
         if (resultCode != ConnectionResult.SUCCESS) {
             //Google Play Services is missing or update is required
-            final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
-            apiAvailability.getErrorDialog(activity, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST).show();
-            return false;
+            throw new GooglePlayServicesNotAvailableException(resultCode);
         }
         return true;
     }
 
-    private boolean isPermissionGranted() {
-        return ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    private boolean checkLocationSettingsEnabled() throws LocationProviderDisabledException {
+        LocationManager locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
+        boolean gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        boolean networkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        if (gpsEnabled || networkEnabled) {
+            return true;
+        }
+        throw new LocationProviderDisabledException();
     }
 
-    private void enableMyLocation() {
+    private boolean isPermissionGranted() {
+        return ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestLocationPermissions() {
         if (!isPermissionGranted()) {
             ActivityCompat.requestPermissions(activity, new String[]{
                     Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.ACCESS_COARSE_LOCATION
-            }, 1);
+            }, 0);
         }
+        //TODO: add request result check
     }
 
     @Override
     public LatLng getLastKnownLocation() throws NullPointerException, NoLocationAccessException {
-        enableMyLocation();
+        requestLocationPermissions();
         if (!isPermissionGranted()) {
             throw new NoLocationAccessException();
         }
         if (LocationProvider.lastLocation != null) {
             return new LatLng(LocationProvider.lastLocation);
+        } else {
+            //request here
         }
         throw new NullPointerException("Последние координаты не были найдены (lastLocation = null).");
     }
 
     @Override
-    public void requestCurrentLocation(ILocationCallback myLocationCallback) throws NullPointerException, NoLocationAccessException {
-        enableMyLocation();
-        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            throw new NoLocationAccessException();
-        }
-        LocationProvider.fusedLocationProviderClient.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null).addOnSuccessListener(new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
-                LocationProvider.lastLocation = location;
-                myLocationCallback.callbackCall(new LatLng(location));
+    public void requestCurrentLocation(ILocationCallback myLocationCallback) throws NullPointerException, NoLocationAccessException, LocationProviderDisabledException {
+        requestLocationPermissions();
+        if (checkLocationSettingsEnabled()) {
+            if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                throw new NoLocationAccessException();
             }
-        });
+
+            LocationProvider.fusedLocationProviderClient.getCurrentLocation(accuracyPriority, null).addOnSuccessListener(new OnSuccessListener<Location>() {
+                @Override
+                public void onSuccess(Location location) {
+                    LocationProvider.lastLocation = location;
+                    myLocationCallback.callbackCall(new LatLng(location));
+                }
+            });
+        }
     }
 
     @Override
-    public void requestLocationUpdates(double intervalMin, ILocationCallback myLocationCallback) throws NoLocationAccessException {
-        enableMyLocation();
-        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            throw new NoLocationAccessException();
-        }
-
-        LocationRequest locationRequest = LocationRequest.create();
-        long millis = (long) (intervalMin * 60 * 1000);
-        locationRequest.setInterval(millis);
-        locationRequest.setFastestInterval(millis);
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
-        builder.addLocationRequest(locationRequest);
-
-        updateLocationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                super.onLocationResult(locationResult);
-                LocationProvider.lastLocation = locationResult.getLastLocation();
-                myLocationCallback.callbackCall(new LatLng(LocationProvider.lastLocation));
+    public void requestLocationUpdates(double intervalMin, ILocationCallback myLocationCallback) throws NoLocationAccessException, LocationProviderDisabledException {
+        requestLocationPermissions();
+        if (checkLocationSettingsEnabled()) {
+            if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                throw new NoLocationAccessException();
             }
-        };
-        LocationProvider.fusedLocationProviderClient.requestLocationUpdates(locationRequest, updateLocationCallback, Looper.getMainLooper());
+            LocationRequest locationRequest = LocationRequest.create();
+            long millis = (long) (intervalMin * 60 * 1000);
+            locationRequest.setInterval(millis);
+            locationRequest.setFastestInterval(millis);
+            locationRequest.setPriority(accuracyPriority);
+
+            LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+            builder.addLocationRequest(locationRequest);
+
+            updateLocationCallback = new LocationCallback() {
+                @Override
+                public void onLocationResult(LocationResult locationResult) {
+                    super.onLocationResult(locationResult);
+                    LocationProvider.lastLocation = locationResult.getLastLocation();
+                    myLocationCallback.callbackCall(new LatLng(LocationProvider.lastLocation));
+                }
+            };
+            if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    || ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                LocationProvider.fusedLocationProviderClient.requestLocationUpdates(locationRequest, updateLocationCallback, Looper.getMainLooper());
+            }
+        }
     }
 
     public void stopLocationUpdates() {
         if (updateLocationCallback != null) {
             LocationProvider.fusedLocationProviderClient.removeLocationUpdates(updateLocationCallback);
-        } else {
-            //TODO: new exception
         }
     }
 }
