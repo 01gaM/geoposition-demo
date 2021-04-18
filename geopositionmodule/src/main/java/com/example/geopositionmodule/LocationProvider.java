@@ -33,7 +33,7 @@ public class LocationProvider implements ILocationProvider {
         this.activity = activity;
         if (googlePlayServicesAvailable()) {
             LocationProvider.fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(activity);
-            if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+            if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                     ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 LocationProvider.fusedLocationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
                     @Override
@@ -45,7 +45,7 @@ public class LocationProvider implements ILocationProvider {
         }
     }
 
-    public void setAccuracyPriority(AccuracyPriority accuracyPriority){
+    public void setAccuracyPriority(AccuracyPriority accuracyPriority) {
         this.accuracyPriority = accuracyPriority.getCode();
     }
 
@@ -75,19 +75,8 @@ public class LocationProvider implements ILocationProvider {
                 || ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
-    private void requestLocationPermissions() {
-        if (!isPermissionGranted()) {
-            ActivityCompat.requestPermissions(activity, new String[]{
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-            }, 0);
-        }
-        //TODO: add request result check
-    }
-
     @Override
     public LatLng getLastKnownLocation() throws NullPointerException, NoLocationAccessException {
-        requestLocationPermissions();
         if (!isPermissionGranted()) {
             throw new NoLocationAccessException();
         }
@@ -101,13 +90,11 @@ public class LocationProvider implements ILocationProvider {
 
     @Override
     public void requestCurrentLocation(ILocationCallback myLocationCallback) throws NullPointerException, NoLocationAccessException, LocationProviderDisabledException {
-        requestLocationPermissions();
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            throw new NoLocationAccessException();
+        }
         if (checkLocationSettingsEnabled()) {
-            if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                    ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                throw new NoLocationAccessException();
-            }
-
             LocationProvider.fusedLocationProviderClient.getCurrentLocation(accuracyPriority, null).addOnSuccessListener(new OnSuccessListener<Location>() {
                 @Override
                 public void onSuccess(Location location) {
@@ -120,12 +107,11 @@ public class LocationProvider implements ILocationProvider {
 
     @Override
     public void requestLocationUpdates(double intervalMin, ILocationCallback myLocationCallback) throws NoLocationAccessException, LocationProviderDisabledException {
-        requestLocationPermissions();
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            throw new NoLocationAccessException();
+        }
         if (checkLocationSettingsEnabled()) {
-            if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                    ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                throw new NoLocationAccessException();
-            }
             LocationRequest locationRequest = LocationRequest.create();
             long millis = (long) (intervalMin * 60 * 1000);
             locationRequest.setInterval(millis);

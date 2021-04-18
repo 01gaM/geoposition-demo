@@ -7,7 +7,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.example.geopositionmodule.AccuracyPriority;
 import com.example.geopositionmodule.GooglePlayServicesNotAvailableException;
 import com.example.geopositionmodule.LatLng;
 import com.example.geopositionmodule.LocationProvider;
@@ -37,10 +36,7 @@ public class LastCoordinatesActivity extends Activity implements Alertable {
                     Toast toast = Toast.makeText(getApplicationContext(), lastCoordinates.toString(), Toast.LENGTH_LONG);
                     toast.setGravity(Gravity.TOP, 0, 400);
                     toast.show();
-                } catch (NoLocationAccessException e) {
-                    e.printStackTrace();
-                    displayAlert(e.getMessage(), LastCoordinatesActivity.this, true);
-                } catch (NullPointerException e) {
+                } catch (NoLocationAccessException | NullPointerException e) {
                     e.printStackTrace();
                     displayAlert(e.getMessage(), LastCoordinatesActivity.this, false);
                 }

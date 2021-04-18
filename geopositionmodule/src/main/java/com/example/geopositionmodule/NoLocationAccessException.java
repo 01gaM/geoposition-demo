@@ -3,9 +3,10 @@ package com.example.geopositionmodule;
 import androidx.annotation.Nullable;
 
 public class NoLocationAccessException extends Exception {
+    public static final String message = "Нет разрешения на доступ к геопозиции.";
     @Nullable
     @Override
     public String getMessage() {
-        return "Нет разрешения на доступ к геопозиции.";
+        return NoLocationAccessException.message;
     }
 }

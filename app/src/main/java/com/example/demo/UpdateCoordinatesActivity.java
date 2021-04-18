@@ -1,6 +1,8 @@
 package com.example.demo;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.Editable;
@@ -12,7 +14,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.geopositionmodule.AccuracyPriority;
 import com.example.geopositionmodule.GooglePlayServicesNotAvailableException;
 import com.example.geopositionmodule.ILocationCallback;
 import com.example.geopositionmodule.LatLng;
@@ -23,7 +24,10 @@ import com.example.geopositionmodule.NoLocationAccessException;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-public class UpdateCoordinatesActivity extends Activity implements Alertable {
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+
+public class UpdateCoordinatesActivity extends Activity implements Alertable, ActivityCompat.OnRequestPermissionsResultCallback {
     private Button showToastButton;
     private EditText editDelay;
     private TextView tvTimer;
@@ -91,9 +95,19 @@ public class UpdateCoordinatesActivity extends Activity implements Alertable {
                         };
                         locationProvider.requestLocationUpdates(minutes, myCallback);
                         startTimer(minutes);
-                    } catch (NoLocationAccessException | LocationProviderDisabledException e) {
+                    } catch (NoLocationAccessException e) {
+                        if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) && shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                            ActivityCompat.requestPermissions(UpdateCoordinatesActivity.this, new String[]{
+                                    Manifest.permission.ACCESS_FINE_LOCATION,
+                                    Manifest.permission.ACCESS_COARSE_LOCATION
+                            }, CurrCoordinatesActivity.REQUEST_LOCATION_PERMISSION_SUCCESS);
+                        } else {
+                            e.printStackTrace();
+                            displayAlert(e.getMessage(), UpdateCoordinatesActivity.this, false);
+                        }
+                    } catch (LocationProviderDisabledException e) {
                         e.printStackTrace();
-                        displayAlert(e.getMessage(), UpdateCoordinatesActivity.this, true);
+                        displayAlert(e.getMessage(), UpdateCoordinatesActivity.this, false);
                     }
                 }
             }
@@ -126,5 +140,16 @@ public class UpdateCoordinatesActivity extends Activity implements Alertable {
             }
         };
         cTimer.start();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == CurrCoordinatesActivity.REQUEST_LOCATION_PERMISSION_SUCCESS) {
+            if (grantResults.length == 0
+                    || grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                //Permission Denied!
+                displayAlert(NoLocationAccessException.message, UpdateCoordinatesActivity.this, false);
+            }
+        }
     }
 }
