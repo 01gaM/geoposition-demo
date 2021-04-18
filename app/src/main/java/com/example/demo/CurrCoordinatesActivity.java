@@ -51,11 +51,18 @@ public class CurrCoordinatesActivity extends Activity implements Alertable, Acti
                 try {
                     ILocationCallback myCallback = new ILocationCallback() {
                         @Override
-                        public void callbackCall(LatLng coordinates) {
+                        public void callOnSuccess(LatLng coordinates) {
                             Toast toast = Toast.makeText(getApplicationContext(), coordinates.toString(), Toast.LENGTH_LONG);
                             toast.setGravity(Gravity.TOP, 0, 400);
                             toast.show();
                             resetElementsState();
+                        }
+
+                        @Override
+                        public void callOnFail(Exception e) {
+                            e.printStackTrace();
+                            resetElementsState();
+                            displayAlert(e.getMessage(), CurrCoordinatesActivity.this, false);
                         }
                     };
                     locationReceiver.requestCurrentLocation(myCallback);

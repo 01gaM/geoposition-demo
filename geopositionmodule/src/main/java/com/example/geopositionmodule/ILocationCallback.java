@@ -1,5 +1,6 @@
 package com.example.geopositionmodule;
 
 public interface ILocationCallback {
-    void callbackCall(LatLng location);
+    void callOnSuccess(LatLng location);
+    void callOnFail(Exception e);
 }

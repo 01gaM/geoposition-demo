@@ -86,11 +86,19 @@ public class UpdateCoordinatesActivity extends Activity implements Alertable, Ac
                     try {
                         ILocationCallback myCallback = new ILocationCallback() {
                             @Override
-                            public void callbackCall(LatLng lastUpdatedLocation) {
+                            public void callOnSuccess(LatLng lastUpdatedLocation) {
                                 Toast toast = Toast.makeText(UpdateCoordinatesActivity.this, lastUpdatedLocation.toString(), Toast.LENGTH_LONG);
                                 toast.setGravity(Gravity.TOP, 0, 400);
                                 toast.show();
                                 cTimer.start(); //restart timer
+                            }
+
+                            @Override
+                            public void callOnFail(Exception e) {
+                                e.printStackTrace();
+                                waitingMessage.setVisibility(View.INVISIBLE);
+                                tvTimer.setVisibility(View.INVISIBLE);
+                                displayAlert(e.getMessage(), UpdateCoordinatesActivity.this, false);
                             }
                         };
                         locationProvider.requestLocationUpdates(minutes, myCallback);

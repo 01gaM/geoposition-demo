@@ -1,6 +1,8 @@
 package com.example.demo;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -12,7 +14,10 @@ import com.example.geopositionmodule.LatLng;
 import com.example.geopositionmodule.LocationProvider;
 import com.example.geopositionmodule.NoLocationAccessException;
 
-public class LastCoordinatesActivity extends Activity implements Alertable {
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+
+public class LastCoordinatesActivity extends Activity implements Alertable, ActivityCompat.OnRequestPermissionsResultCallback {
     private Button showToastButton;
     private LocationProvider locationReceiver;
 
@@ -36,7 +41,17 @@ public class LastCoordinatesActivity extends Activity implements Alertable {
                     Toast toast = Toast.makeText(getApplicationContext(), lastCoordinates.toString(), Toast.LENGTH_LONG);
                     toast.setGravity(Gravity.TOP, 0, 400);
                     toast.show();
-                } catch (NoLocationAccessException | NullPointerException e) {
+                } catch (NoLocationAccessException e) {
+                    if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) && shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                        ActivityCompat.requestPermissions(LastCoordinatesActivity.this, new String[]{
+                                Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION
+                        }, CurrCoordinatesActivity.REQUEST_LOCATION_PERMISSION_SUCCESS);
+                    } else {
+                        e.printStackTrace();
+                        displayAlert(e.getMessage(), LastCoordinatesActivity.this, false);
+                    }
+                } catch (NullPointerException e) {
                     e.printStackTrace();
                     displayAlert(e.getMessage(), LastCoordinatesActivity.this, false);
                 }
@@ -44,4 +59,17 @@ public class LastCoordinatesActivity extends Activity implements Alertable {
         };
         showToastButton.setOnClickListener(listener);
     }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == CurrCoordinatesActivity.REQUEST_LOCATION_PERMISSION_SUCCESS) {
+            if (grantResults.length == 0
+                    || grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                //Permission Denied!
+                displayAlert(NoLocationAccessException.message, LastCoordinatesActivity.this, false);
+            }
+        }
+    }
+
 }
