@@ -12,6 +12,7 @@ public class MainActivity extends AppCompatActivity {
     private Button currCoordinatesButton;
     private Button lastCoordinatesButton;
     private Button updateCoordinatesButton;
+    private Button getSpeedButton;
 
     private Button.OnClickListener generateButtonOnClickListener(Class<?> cls) {
         return new Button.OnClickListener() {
@@ -38,5 +39,9 @@ public class MainActivity extends AppCompatActivity {
         updateCoordinatesButton = findViewById(R.id.button_update_coordinates);
         Button.OnClickListener updateListener = generateButtonOnClickListener(UpdateCoordinatesActivity.class);
         updateCoordinatesButton.setOnClickListener(updateListener);
+
+        getSpeedButton = findViewById(R.id.button_get_speed);
+        Button.OnClickListener speedListener = generateButtonOnClickListener(SpeedActivity.class);
+        getSpeedButton.setOnClickListener(speedListener);
     }
 }

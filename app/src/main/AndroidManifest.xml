@@ -18,6 +18,7 @@
         <activity android:name="com.example.demo.CurrCoordinatesActivity"></activity>
         <activity android:name="com.example.demo.LastCoordinatesActivity"></activity>
         <activity android:name="com.example.demo.UpdateCoordinatesActivity"></activity>
+        <activity android:name="com.example.demo.SpeedActivity"></activity>
 
     </application>
 

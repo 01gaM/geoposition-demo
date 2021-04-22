@@ -23,10 +23,11 @@ import androidx.core.app.ActivityCompat;
 
 public class CurrCoordinatesActivity extends Activity implements Alertable, ActivityCompat.OnRequestPermissionsResultCallback {
     private Button showToastButton;
-    private LocationProvider locationReceiver;
+    private LocationProvider locationProvider;
     private ProgressBar progressBar;
     private TextView progressMessage;
     public static final int REQUEST_LOCATION_PERMISSION_SUCCESS = 0;
+    static boolean IS_PERMISSION_REQUESTED_FIRST_TIME = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +37,7 @@ public class CurrCoordinatesActivity extends Activity implements Alertable, Acti
         progressBar = findViewById(R.id.progressBar);
         progressMessage = findViewById(R.id.request_in_progress_message);
         try {
-            locationReceiver = new LocationProvider(CurrCoordinatesActivity.this);
+            locationProvider = new LocationProvider(CurrCoordinatesActivity.this);
         } catch (GooglePlayServicesNotAvailableException e) {
             displayAlert(e.getMessage(), CurrCoordinatesActivity.this, true);
             e.printStackTrace();
@@ -65,9 +66,12 @@ public class CurrCoordinatesActivity extends Activity implements Alertable, Acti
                             displayAlert(e.getMessage(), CurrCoordinatesActivity.this, false);
                         }
                     };
-                    locationReceiver.requestCurrentLocation(myCallback);
+                    locationProvider.requestCurrentLocation(myCallback);
                 } catch (NoLocationAccessException e) {
-                    if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) && shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                    if (CurrCoordinatesActivity.IS_PERMISSION_REQUESTED_FIRST_TIME || shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) && shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                        if (CurrCoordinatesActivity.IS_PERMISSION_REQUESTED_FIRST_TIME) {
+                            CurrCoordinatesActivity.IS_PERMISSION_REQUESTED_FIRST_TIME = false;
+                        }
                         ActivityCompat.requestPermissions(CurrCoordinatesActivity.this, new String[]{
                                 Manifest.permission.ACCESS_FINE_LOCATION,
                                 Manifest.permission.ACCESS_COARSE_LOCATION

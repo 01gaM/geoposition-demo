@@ -8,5 +8,5 @@ public interface ILocationProvider {
     LatLng getLastKnownLocation() throws NullPointerException, NoLocationAccessException;
     void requestCurrentLocation(ILocationCallback callback) throws NullPointerException, NoLocationAccessException, LocationProviderDisabledException;
     //TODO: change intervalMin type to int
-    void requestLocationUpdates(double intervalMin, ILocationCallback callback) throws NoLocationAccessException, LocationProviderDisabledException;
+    void requestLocationUpdates(double intervalMin, ILocationCallback callback) throws NoLocationAccessException, LocationProviderDisabledException, IntervalValueOutOfRangeException;
 }

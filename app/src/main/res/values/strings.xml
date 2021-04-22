@@ -9,4 +9,9 @@
     <string name="timer_start_value">%02d:%02d с момента запроса</string>
     <string name="waiting_for_update">Ожидаение обновления координат:</string>
     <string name="request_in_progress">Запрос обрабатывается</string>
+    <string name="stop_updates">Остановить</string>
+    <string name="current_speed">x км/час</string>
+    <string name="request_speed">Определить скорость</string>
+    <string name="message_current_speed">Текущая скорость:</string>
+    <string name="get_speed_button">Определить скорость</string>
 </resources>

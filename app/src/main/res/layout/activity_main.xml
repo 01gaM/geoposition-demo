@@ -7,29 +7,43 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="106dp"
-        android:text="@string/app_name"
-        android:textSize="30sp" />
-
-    <Button
-        android:id="@+id/button_curr_coordinates"
+    <LinearLayout
         android:layout_width="270dp"
         android:layout_height="wrap_content"
-        android:text="@string/current_coordinates" />
+        android:orientation="vertical">
 
-    <Button
-        android:id="@+id/button_last_coordinates"
-        android:layout_width="270dp"
-        android:layout_height="wrap_content"
-        android:text="@string/last_coordinates" />
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="match_parent"
+            android:layout_height="106dp"
+            android:text="@string/app_name"
+            android:textAlignment="center"
+            android:textSize="30sp" />
 
-    <Button
-        android:id="@+id/button_update_coordinates"
-        android:layout_width="270dp"
-        android:layout_height="wrap_content"
-        android:text="@string/update_coordinates" />
+        <Button
+            android:id="@+id/button_curr_coordinates"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/current_coordinates" />
+
+        <Button
+            android:id="@+id/button_last_coordinates"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/last_coordinates" />
+
+        <Button
+            android:id="@+id/button_update_coordinates"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/update_coordinates" />
+
+        <Button
+            android:id="@+id/button_get_speed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/get_speed_button" />
+
+    </LinearLayout>
 
 </LinearLayout>

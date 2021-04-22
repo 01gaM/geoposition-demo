@@ -31,21 +31,22 @@ public class LocationProvider implements ILocationProvider {
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LocationCallback updateLocationCallback = null;
     private int accuracyPriority = AccuracyPriority.PRIORITY_HIGH_ACCURACY.getCode();
+    public static final double MIN_UPDATE_INTERVAL = 0.05; //minimum location update interval in minutes (3 seconds)
 
 
     public LocationProvider(Activity activity) throws GooglePlayServicesNotAvailableException {
         this.activity = activity;
-        if (googlePlayServicesAvailable()) {
-            this.fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(activity);
-            if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-                    ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                this.fusedLocationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        LocationProvider.lastLocation = location;
-                    }
-                });
-            }
+        checkGooglePlayServicesAvailable();
+        this.fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(activity);
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            this.fusedLocationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
+                @Override
+                public void onSuccess(Location location) {
+                    LocationProvider.lastLocation = location;
+                }
+            });
+
         }
     }
 
@@ -54,14 +55,13 @@ public class LocationProvider implements ILocationProvider {
     }
 
 
-    private boolean googlePlayServicesAvailable() throws GooglePlayServicesNotAvailableException {
+    private void checkGooglePlayServicesAvailable() throws GooglePlayServicesNotAvailableException {
         GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
         int resultCode = apiAvailability.isGooglePlayServicesAvailable(activity);
         if (resultCode != ConnectionResult.SUCCESS) {
             //Google Play Services is missing or update is required
             throw new GooglePlayServicesNotAvailableException(resultCode);
         }
-        return true;
     }
 
     private void checkLocationSettingsEnabled() throws LocationProviderDisabledException {
@@ -103,25 +103,38 @@ public class LocationProvider implements ILocationProvider {
     }
 
 
-    public LatLng getLastKnownLocation(ILocationCallback myLocationCallback) throws NullPointerException, NoLocationAccessException, LocationProviderDisabledException {
+    public void getLastKnownLocation(ILocationCallback myLocationCallback) throws NullPointerException, NoLocationAccessException, LocationProviderDisabledException {
         checkPermissionGranted();
+        checkLocationSettingsEnabled();
         if (LocationProvider.lastLocation != null) {
-            return new LatLng(LocationProvider.lastLocation);
+            myLocationCallback.callOnSuccess(new LatLng(LocationProvider.lastLocation));
         } else {
             if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                     ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                this.fusedLocationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        LocationProvider.lastLocation = location;
-                        myLocationCallback.callOnSuccess(new LatLng(location));
-                    }
-                });
+                this.fusedLocationProviderClient.getLastLocation()
+                        .addOnSuccessListener(new OnSuccessListener<Location>() {
+                            @Override
+                            public void onSuccess(Location location) {
+                                if (location == null) {
+                                    myLocationCallback.callOnFail(new NullPointerException("Последние координаты не были найдены (lastLocation = null)."));
+                                } else {
+                                    LocationProvider.lastLocation = location;
+                                    myLocationCallback.callOnSuccess(new LatLng(location));
+                                }
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                myLocationCallback.callOnFail(e);
+                            }
+                        });
             }
         }
-        throw new NullPointerException("Последние координаты не были найдены (lastLocation = null).");
+        // throw new NullPointerException("Последние координаты не были найдены (lastLocation = null).");
     }
 
+    //since play-services-location:17.1.0
     @Override
     public void requestCurrentLocation(ILocationCallback myLocationCallback) throws NullPointerException, NoLocationAccessException, LocationProviderDisabledException {
         checkPermissionGranted();
@@ -132,7 +145,6 @@ public class LocationProvider implements ILocationProvider {
                     .addOnSuccessListener(new OnSuccessListener<Location>() {
                         @Override
                         public void onSuccess(Location location) {
-                            LocationProvider.lastLocation = location;
                             if (location == null) {
                                 try {
                                     checkLocationSettingsEnabled();
@@ -141,6 +153,7 @@ public class LocationProvider implements ILocationProvider {
                                     myLocationCallback.callOnFail(e);
                                 }
                             } else {
+                                LocationProvider.lastLocation = location;
                                 myLocationCallback.callOnSuccess(new LatLng(location));
                             }
                         }
@@ -155,8 +168,15 @@ public class LocationProvider implements ILocationProvider {
 
     }
 
+    private void checkUpdateIntervalValue(double intervalMin) throws IntervalValueOutOfRangeException {
+        if (intervalMin < LocationProvider.MIN_UPDATE_INTERVAL) {
+            throw new IntervalValueOutOfRangeException();
+        }
+    }
+
     @Override
-    public void requestLocationUpdates(double intervalMin, ILocationCallback myLocationCallback) throws NoLocationAccessException, LocationProviderDisabledException {
+    public void requestLocationUpdates(double intervalMin, ILocationCallback myLocationCallback) throws NoLocationAccessException, LocationProviderDisabledException, IntervalValueOutOfRangeException {
+        checkUpdateIntervalValue(intervalMin);
         checkPermissionGranted();
         checkLocationSettingsEnabled();
         if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
@@ -203,4 +223,10 @@ public class LocationProvider implements ILocationProvider {
             this.fusedLocationProviderClient.removeLocationUpdates(updateLocationCallback);
         }
     }
+
+//    public void getCurrentSpeed(double intervalMin, ILocationCallback myLocationCallback) {
+//
+//
+//
+//    }
 }
