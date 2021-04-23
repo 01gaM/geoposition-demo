@@ -71,7 +71,7 @@ public class SpeedActivity extends Activity implements Alertable, ActivityCompat
                             displayAlert(e.getMessage(), SpeedActivity.this, false);
                         }
                     };
-                    locationProvider.requestLocationUpdates(LocationProvider.MIN_UPDATE_INTERVAL, myCallback);
+                    locationProvider.requestLocationUpdates(LocationProvider.MINIMUM_UPDATE_INTERVAL, myCallback);
                 } catch (NoLocationAccessException e) {
                     if (CurrCoordinatesActivity.IS_PERMISSION_REQUESTED_FIRST_TIME || shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) && shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)) {
                         if (CurrCoordinatesActivity.IS_PERMISSION_REQUESTED_FIRST_TIME) {

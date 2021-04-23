@@ -59,11 +59,7 @@ public class UpdateCoordinatesActivity extends Activity implements Alertable, Ac
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (!stopUpdatesButton.isEnabled() && !editDelay.getText().toString().isEmpty()) {
-                    requestUpdatesButton.setEnabled(true);
-                } else {
-                    requestUpdatesButton.setEnabled(false);
-                }
+                requestUpdatesButton.setEnabled(!stopUpdatesButton.isEnabled() && !editDelay.getText().toString().isEmpty());
             }
 
             @Override
