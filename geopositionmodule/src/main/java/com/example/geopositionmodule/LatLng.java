@@ -26,4 +26,12 @@ public class LatLng {
     public float getSpeed() {
         return speed;
     }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
 }

@@ -2,6 +2,7 @@ package com.example.demo;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -27,6 +28,8 @@ public class CurrCoordinatesActivity extends Activity implements Alertable, Acti
     private TextView progressMessage;
     public static final int REQUEST_LOCATION_PERMISSION_SUCCESS = 0;
     static boolean IS_PERMISSION_REQUESTED_FIRST_TIME = true;
+    private Button displayMapButton;
+    private LatLng currCoordinates = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +38,7 @@ public class CurrCoordinatesActivity extends Activity implements Alertable, Acti
         showToastButton = findViewById(R.id.request_curr_coordinates_button);
         progressBar = findViewById(R.id.progressBar);
         progressMessage = findViewById(R.id.request_in_progress_message);
+        displayMapButton = findViewById(R.id.button_display_map);
        // try {
             locationProvider = new LocationProvider(CurrCoordinatesActivity.this);
 //        } catch (GooglePlayServicesNotAvailableException e) {
@@ -52,6 +56,7 @@ public class CurrCoordinatesActivity extends Activity implements Alertable, Acti
                     ILocationCallback myCallback = new ILocationCallback() {
                         @Override
                         public void callOnSuccess(LatLng coordinates) {
+                            currCoordinates = coordinates;
                             Toast toast = Toast.makeText(getApplicationContext(), coordinates.toString(), Toast.LENGTH_LONG);
                             toast.setGravity(Gravity.TOP, 0, 400);
                             toast.show();
@@ -89,6 +94,17 @@ public class CurrCoordinatesActivity extends Activity implements Alertable, Acti
             }
         };
         showToastButton.setOnClickListener(listener);
+        displayMapButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Dialog fbDialogue = new MapDialog(CurrCoordinatesActivity.this, currCoordinates);
+//                final Dialog fbDialogue = new Dialog(CurrCoordinatesActivity.this, android.R.style.Theme_Black_NoTitleBar);
+//                fbDialogue.getWindow().setBackgroundDrawable(new ColorDrawable(Color.argb(100, 0, 0, 0)));
+//                fbDialogue.setContentView(R.layout.fragment_map);
+                fbDialogue.setCancelable(true);
+                fbDialogue.show();
+            }
+        });
     }
 
     @Override

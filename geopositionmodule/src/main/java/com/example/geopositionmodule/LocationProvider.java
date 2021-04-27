@@ -29,9 +29,9 @@ public class LocationProvider implements ILocationProvider {
 //            checkGooglePlayServicesAvailable();
 //        } catch (GooglePlayServicesNotAvailableException e) {
 //            e.printStackTrace();
-//            return new LocationProviderLM(context);
+//            return new LocationProviderClientAndroidAPI(context);
 //        }
-//        return new LocationProviderF(context);
+//        return new LocationProviderClientGoogleAPI(context);
         return new LocationProviderClientAndroidAPI(context);
     }
 

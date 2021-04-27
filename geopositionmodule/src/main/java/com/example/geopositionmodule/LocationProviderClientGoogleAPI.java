@@ -35,6 +35,14 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
         super(context);
     }
 
+    public LocationCallback getUpdateLocationCallback() {
+        return updateLocationCallback;
+    }
+
+    public int getAccuracyPriority() {
+        return accuracyPriority;
+    }
+
     /**
      * This method allows to set a specific accuracy priority to a LocationProvider instance
      *
@@ -161,7 +169,7 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
 
             updateLocationCallback = new LocationCallback() {
                 @Override
-                public void onLocationResult(LocationResult locationResult) {
+                public void onLocationResult(@NonNull LocationResult locationResult) {
                     super.onLocationResult(locationResult);
                     LocationProviderClientGoogleAPI.lastLocation = locationResult.getLastLocation();
                     myLocationCallback.callOnSuccess(new LatLng(LocationProviderClientGoogleAPI.lastLocation));
@@ -195,6 +203,7 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
     public void stopLocationUpdates() {
         if (updateLocationCallback != null) {
             this.fusedLocationProviderClient.removeLocationUpdates(updateLocationCallback);
+            updateLocationCallback = null; //TODO: check this
         }
     }
 }

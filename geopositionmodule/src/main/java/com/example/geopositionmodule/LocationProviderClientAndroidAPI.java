@@ -29,12 +29,15 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
         super(context);
     }
 
+    public LocationListener getUpdateLocationListener() {
+        return updateLocationListener;
+    }
+
     private String getAvailableProviderName() throws NullPointerException {
         // Retrieve a list of location providers that have fine accuracy, no monetary cost, etc
         Criteria criteria = new Criteria();
         criteria.setAccuracy(Criteria.ACCURACY_FINE); //TODO: check this
-        criteria.setCostAllowed(false);
-
+        criteria.setPowerRequirement(Criteria.POWER_LOW);
         String providerName = locationManager.getBestProvider(criteria, true);
 
         // If no suitable provider is found, null is returned.

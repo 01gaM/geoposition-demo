@@ -19,11 +19,23 @@
         android:text="@string/request_in_progress"
         android:visibility="invisible"/>
 
-    <Button
-        android:id="@+id/request_curr_coordinates_button"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="210dp"
         android:layout_height="wrap_content"
-        android:text="@string/request_coordinates"
-        android:layout_marginTop="30dp"/>
+        android:orientation="vertical">
 
+        <Button
+            android:id="@+id/request_curr_coordinates_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:text="@string/request_coordinates" />
+
+        <Button
+            android:id="@+id/button_display_map"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/display_on_map" />
+
+    </LinearLayout>
 </LinearLayout>
