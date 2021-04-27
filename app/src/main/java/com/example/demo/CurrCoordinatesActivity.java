@@ -11,12 +11,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.geopositionmodule.GooglePlayServicesNotAvailableException;
 import com.example.geopositionmodule.ILocationCallback;
 import com.example.geopositionmodule.LatLng;
 import com.example.geopositionmodule.LocationProvider;
-import com.example.geopositionmodule.LocationProviderDisabledException;
-import com.example.geopositionmodule.NoLocationAccessException;
+import com.example.geopositionmodule.exceptions.LocationProviderDisabledException;
+import com.example.geopositionmodule.exceptions.NoLocationAccessException;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -36,12 +35,12 @@ public class CurrCoordinatesActivity extends Activity implements Alertable, Acti
         showToastButton = findViewById(R.id.request_curr_coordinates_button);
         progressBar = findViewById(R.id.progressBar);
         progressMessage = findViewById(R.id.request_in_progress_message);
-        try {
+       // try {
             locationProvider = new LocationProvider(CurrCoordinatesActivity.this);
-        } catch (GooglePlayServicesNotAvailableException e) {
-            displayAlert(e.getMessage(), CurrCoordinatesActivity.this, true);
-            e.printStackTrace();
-        }
+//        } catch (GooglePlayServicesNotAvailableException e) {
+//            displayAlert(e.getMessage(), CurrCoordinatesActivity.this, true);
+//            e.printStackTrace();
+//        }
 
         Button.OnClickListener listener = new Button.OnClickListener() {
             @Override

@@ -1,4 +1,6 @@
-package com.example.geopositionmodule;
+package com.example.geopositionmodule.exceptions;
+
+import com.example.geopositionmodule.LocationProvider;
 
 import java.util.Locale;
 

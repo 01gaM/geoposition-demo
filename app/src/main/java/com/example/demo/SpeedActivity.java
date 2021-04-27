@@ -9,13 +9,12 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.geopositionmodule.GooglePlayServicesNotAvailableException;
 import com.example.geopositionmodule.ILocationCallback;
-import com.example.geopositionmodule.IntervalValueOutOfRangeException;
+import com.example.geopositionmodule.exceptions.IntervalValueOutOfRangeException;
 import com.example.geopositionmodule.LatLng;
 import com.example.geopositionmodule.LocationProvider;
-import com.example.geopositionmodule.LocationProviderDisabledException;
-import com.example.geopositionmodule.NoLocationAccessException;
+import com.example.geopositionmodule.exceptions.LocationProviderDisabledException;
+import com.example.geopositionmodule.exceptions.NoLocationAccessException;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -38,12 +37,12 @@ public class SpeedActivity extends Activity implements Alertable, ActivityCompat
         tvSpeedValue = findViewById(R.id.text_current_speed_value);
         progressBar = findViewById(R.id.progress_bar_speed);
 
-        try {
+       // try {
             locationProvider = new LocationProvider(SpeedActivity.this);
-        } catch (GooglePlayServicesNotAvailableException e) {
-            displayAlert(e.getMessage(), SpeedActivity.this, true);
-            e.printStackTrace();
-        }
+//        } catch (GooglePlayServicesNotAvailableException e) {
+//            displayAlert(e.getMessage(), SpeedActivity.this, true);
+//            e.printStackTrace();
+//        }
 
         Button.OnClickListener listener = new Button.OnClickListener() {
             @Override

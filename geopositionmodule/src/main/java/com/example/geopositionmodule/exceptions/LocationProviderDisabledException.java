@@ -1,4 +1,4 @@
-package com.example.geopositionmodule;
+package com.example.geopositionmodule.exceptions;
 
 import androidx.annotation.Nullable;
 

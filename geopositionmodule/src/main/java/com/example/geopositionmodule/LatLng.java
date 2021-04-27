@@ -19,11 +19,11 @@ public class LatLng {
 
     @Override
     public String toString() {
-        return "lon=" + longitude +
-                ", lat=" + latitude;
+        return "lat=" + latitude +
+                ", lon=" + longitude;
     }
 
-    public float getSpeed(){
+    public float getSpeed() {
         return speed;
     }
 }

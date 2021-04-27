@@ -9,12 +9,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.example.geopositionmodule.GooglePlayServicesNotAvailableException;
 import com.example.geopositionmodule.ILocationCallback;
 import com.example.geopositionmodule.LatLng;
 import com.example.geopositionmodule.LocationProvider;
-import com.example.geopositionmodule.LocationProviderDisabledException;
-import com.example.geopositionmodule.NoLocationAccessException;
+import com.example.geopositionmodule.exceptions.LocationProviderDisabledException;
+import com.example.geopositionmodule.exceptions.NoLocationAccessException;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -28,12 +27,12 @@ public class LastCoordinatesActivity extends Activity implements Alertable, Acti
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_last_coordinates);
         showToastButton = findViewById(R.id.request_last_coordinates_button);
-        try {
+        //try {
             locationProvider = new LocationProvider(LastCoordinatesActivity.this);
-        } catch (GooglePlayServicesNotAvailableException e) {
-            displayAlert(e.getMessage(), LastCoordinatesActivity.this, true);
-            e.printStackTrace();
-        }
+//        } catch (GooglePlayServicesNotAvailableException e) {
+//            displayAlert(e.getMessage(), LastCoordinatesActivity.this, true);
+//            e.printStackTrace();
+//        }
 
         Button.OnClickListener listener = new Button.OnClickListener() {
             @Override

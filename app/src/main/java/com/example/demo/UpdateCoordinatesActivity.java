@@ -14,15 +14,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.geopositionmodule.GooglePlayServicesNotAvailableException;
 import com.example.geopositionmodule.ILocationCallback;
-import com.example.geopositionmodule.IntervalValueOutOfRangeException;
+import com.example.geopositionmodule.exceptions.IntervalValueOutOfRangeException;
 import com.example.geopositionmodule.LatLng;
 import com.example.geopositionmodule.LocationProvider;
-import com.example.geopositionmodule.LocationProviderDisabledException;
-import com.example.geopositionmodule.NoLocationAccessException;
+import com.example.geopositionmodule.exceptions.LocationProviderDisabledException;
+import com.example.geopositionmodule.exceptions.NoLocationAccessException;
 
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
@@ -46,12 +44,12 @@ public class UpdateCoordinatesActivity extends Activity implements Alertable, Ac
         tvTimer = findViewById(R.id.text_timer);
         waitingMessage = findViewById(R.id.text_waiting_message);
         editDelay = findViewById(R.id.edit_text_interval);
-        try {
+        //try {
             locationProvider = new LocationProvider(UpdateCoordinatesActivity.this);
-        } catch (GooglePlayServicesNotAvailableException e) {
-            displayAlert(e.getMessage(), UpdateCoordinatesActivity.this, true);
-            e.printStackTrace();
-        }
+//        } catch (GooglePlayServicesNotAvailableException e) {
+//            displayAlert(e.getMessage(), UpdateCoordinatesActivity.this, true);
+//            e.printStackTrace();
+//        }
         editDelay.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -137,7 +135,6 @@ public class UpdateCoordinatesActivity extends Activity implements Alertable, Ac
         requestUpdatesButton.setEnabled(true);
     }
 
-
     @Override
     protected void onDestroy() {
         stopTimer();
@@ -151,7 +148,7 @@ public class UpdateCoordinatesActivity extends Activity implements Alertable, Ac
             locationProvider.stopLocationUpdates();
     }
 
-    void startTimer(double minutesInterval) {
+    private void startTimer(double minutesInterval) {
         waitingMessage.setVisibility(View.VISIBLE);
         tvTimer.setVisibility(View.VISIBLE);
         long millis = (long) (minutesInterval * 60 * 1000);
