@@ -1,9 +1,7 @@
 package com.example.demo;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.Dialog;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -18,10 +16,7 @@ import com.example.geopositionmodule.LocationProvider;
 import com.example.geopositionmodule.exceptions.LocationProviderDisabledException;
 import com.example.geopositionmodule.exceptions.NoLocationAccessException;
 
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-
-public class CurrCoordinatesActivity extends Activity implements Alertable, ActivityCompat.OnRequestPermissionsResultCallback {
+public class CurrCoordinatesActivity extends BaseCoordinatesActivity {
     private Button showToastButton;
     private LocationProvider locationProvider;
     private ProgressBar progressBar;
@@ -39,12 +34,7 @@ public class CurrCoordinatesActivity extends Activity implements Alertable, Acti
         progressBar = findViewById(R.id.progressBar);
         progressMessage = findViewById(R.id.request_in_progress_message);
         displayMapButton = findViewById(R.id.button_display_map);
-       // try {
-            locationProvider = new LocationProvider(CurrCoordinatesActivity.this);
-//        } catch (GooglePlayServicesNotAvailableException e) {
-//            displayAlert(e.getMessage(), CurrCoordinatesActivity.this, true);
-//            e.printStackTrace();
-//        }
+        locationProvider = new LocationProvider(CurrCoordinatesActivity.this);
 
         Button.OnClickListener listener = new Button.OnClickListener() {
             @Override
@@ -65,31 +55,19 @@ public class CurrCoordinatesActivity extends Activity implements Alertable, Acti
 
                         @Override
                         public void callOnFail(Exception e) {
-                            e.printStackTrace();
-                            resetElementsState();
-                            displayAlert(e.getMessage(), CurrCoordinatesActivity.this, false);
+                            handleException(e);
                         }
                     };
                     locationProvider.requestCurrentLocation(myCallback);
                 } catch (NoLocationAccessException e) {
-                    if (CurrCoordinatesActivity.IS_PERMISSION_REQUESTED_FIRST_TIME || shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) && shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                        if (CurrCoordinatesActivity.IS_PERMISSION_REQUESTED_FIRST_TIME) {
-                            CurrCoordinatesActivity.IS_PERMISSION_REQUESTED_FIRST_TIME = false;
-                        }
-                        ActivityCompat.requestPermissions(CurrCoordinatesActivity.this, new String[]{
-                                Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.ACCESS_COARSE_LOCATION
-                        }, REQUEST_LOCATION_PERMISSION_SUCCESS);
+                    if (CurrCoordinatesActivity.IS_PERMISSION_REQUESTED_FIRST_TIME || shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)
+                            && shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                        requestPermissions();
                     } else {
-                        e.printStackTrace();
-                        resetElementsState();
-                        displayAlert(e.getMessage(), CurrCoordinatesActivity.this, false);
+                        handleException(e);
                     }
-
                 } catch (LocationProviderDisabledException | NullPointerException e) {
-                    e.printStackTrace();
-                    resetElementsState();
-                    displayAlert(e.getMessage(), CurrCoordinatesActivity.this, false);
+                    handleException(e);
                 }
             }
         };
@@ -97,29 +75,15 @@ public class CurrCoordinatesActivity extends Activity implements Alertable, Acti
         displayMapButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Dialog fbDialogue = new MapDialog(CurrCoordinatesActivity.this, currCoordinates);
-//                final Dialog fbDialogue = new Dialog(CurrCoordinatesActivity.this, android.R.style.Theme_Black_NoTitleBar);
-//                fbDialogue.getWindow().setBackgroundDrawable(new ColorDrawable(Color.argb(100, 0, 0, 0)));
-//                fbDialogue.setContentView(R.layout.fragment_map);
-                fbDialogue.setCancelable(true);
-                fbDialogue.show();
+                final Dialog dialog = new MapDialog(CurrCoordinatesActivity.this, currCoordinates);
+                dialog.setCancelable(true);
+                dialog.show();
             }
         });
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        resetElementsState();
-        if (requestCode == REQUEST_LOCATION_PERMISSION_SUCCESS) {
-            if (grantResults.length == 0
-                    || grantResults[0] == PackageManager.PERMISSION_DENIED) {
-                //Permission Denied!
-                displayAlert(NoLocationAccessException.message, CurrCoordinatesActivity.this, false);
-            }
-        }
-    }
-
-    private void resetElementsState() {
+    protected void resetElementsState() {
         progressBar.setVisibility(View.INVISIBLE);
         progressMessage.setVisibility(View.INVISIBLE);
         showToastButton.setEnabled(true);

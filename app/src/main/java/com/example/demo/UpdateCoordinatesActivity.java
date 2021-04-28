@@ -1,8 +1,6 @@
 package com.example.demo;
 
 import android.Manifest;
-import android.app.Activity;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.Editable;
@@ -23,10 +21,7 @@ import com.example.geopositionmodule.exceptions.NoLocationAccessException;
 
 import java.util.concurrent.TimeUnit;
 
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-
-public class UpdateCoordinatesActivity extends Activity implements Alertable, ActivityCompat.OnRequestPermissionsResultCallback {
+public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
     private Button requestUpdatesButton;
     private Button stopUpdatesButton;
     private EditText editDelay;
@@ -44,12 +39,7 @@ public class UpdateCoordinatesActivity extends Activity implements Alertable, Ac
         tvTimer = findViewById(R.id.text_timer);
         waitingMessage = findViewById(R.id.text_waiting_message);
         editDelay = findViewById(R.id.edit_text_interval);
-        //try {
-            locationProvider = new LocationProvider(UpdateCoordinatesActivity.this);
-//        } catch (GooglePlayServicesNotAvailableException e) {
-//            displayAlert(e.getMessage(), UpdateCoordinatesActivity.this, true);
-//            e.printStackTrace();
-//        }
+        locationProvider = new LocationProvider(UpdateCoordinatesActivity.this);
         editDelay.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -64,7 +54,6 @@ public class UpdateCoordinatesActivity extends Activity implements Alertable, Ac
             public void afterTextChanged(Editable editable) {
             }
         });
-
 
         Button.OnClickListener listener = new Button.OnClickListener() {
             @Override
@@ -87,33 +76,20 @@ public class UpdateCoordinatesActivity extends Activity implements Alertable, Ac
 
                         @Override
                         public void callOnFail(Exception e) {
-                            e.printStackTrace();
-                            waitingMessage.setVisibility(View.INVISIBLE);
-                            tvTimer.setVisibility(View.INVISIBLE);
-                            displayAlert(e.getMessage(), UpdateCoordinatesActivity.this, false);
-                            resetElementsState();
+                            handleException(e);
                         }
                     };
                     locationProvider.requestLocationUpdates(minutes, myCallback);
                     startTimer(minutes);
                 } catch (NoLocationAccessException e) {
-                    if (CurrCoordinatesActivity.IS_PERMISSION_REQUESTED_FIRST_TIME || shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) && shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                        if (CurrCoordinatesActivity.IS_PERMISSION_REQUESTED_FIRST_TIME) {
-                            CurrCoordinatesActivity.IS_PERMISSION_REQUESTED_FIRST_TIME = false;
-                        }
-                        ActivityCompat.requestPermissions(UpdateCoordinatesActivity.this, new String[]{
-                                Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.ACCESS_COARSE_LOCATION
-                        }, CurrCoordinatesActivity.REQUEST_LOCATION_PERMISSION_SUCCESS);
+                    if (CurrCoordinatesActivity.IS_PERMISSION_REQUESTED_FIRST_TIME || shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)
+                            && shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                        requestPermissions();
                     } else {
-                        e.printStackTrace();
-                        displayAlert(e.getMessage(), UpdateCoordinatesActivity.this, false);
-                        resetElementsState();
+                        handleException(e);
                     }
                 } catch (LocationProviderDisabledException | IntervalValueOutOfRangeException e) {
-                    e.printStackTrace();
-                    displayAlert(e.getMessage(), UpdateCoordinatesActivity.this, false);
-                    resetElementsState();
+                    handleException(e);
                 }
             }
         };
@@ -123,16 +99,19 @@ public class UpdateCoordinatesActivity extends Activity implements Alertable, Ac
             public void onClick(View v) {
                 stopTimer();
                 resetElementsState();
-                waitingMessage.setVisibility(View.INVISIBLE);
-                tvTimer.setVisibility(View.INVISIBLE);
+//                waitingMessage.setVisibility(View.INVISIBLE);
+//                tvTimer.setVisibility(View.INVISIBLE);
             }
         });
     }
 
-    private void resetElementsState(){
+    @Override
+    protected void resetElementsState() {
         editDelay.setEnabled(true);
         stopUpdatesButton.setEnabled(false);
         requestUpdatesButton.setEnabled(true);
+        waitingMessage.setVisibility(View.INVISIBLE);
+        tvTimer.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -163,16 +142,5 @@ public class UpdateCoordinatesActivity extends Activity implements Alertable, Ac
             }
         };
         cTimer.start();
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == CurrCoordinatesActivity.REQUEST_LOCATION_PERMISSION_SUCCESS) {
-            if (grantResults.length == 0
-                    || grantResults[0] == PackageManager.PERMISSION_DENIED) {
-                //Permission Denied!
-                displayAlert(NoLocationAccessException.message, UpdateCoordinatesActivity.this, false);
-            }
-        }
     }
 }

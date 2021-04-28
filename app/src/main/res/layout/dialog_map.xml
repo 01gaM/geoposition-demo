@@ -19,7 +19,8 @@
             android:text="X"
             android:textAlignment="center"
             android:textSize="14sp"
-            android:layout_margin="10dp"/>
+            android:layout_margin="10dp"
+            android:background="#FFFFFF"/>
     </RelativeLayout>
 
 </RelativeLayout>

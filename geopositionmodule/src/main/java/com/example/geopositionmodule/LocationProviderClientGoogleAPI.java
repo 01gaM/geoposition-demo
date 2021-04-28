@@ -184,6 +184,7 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
                         } catch (LocationProviderDisabledException e) {
                             myLocationCallback.callOnFail(e);
                         }
+                        stopLocationUpdates();
                     }
                 }
             };
@@ -192,7 +193,6 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
                 this.fusedLocationProviderClient.requestLocationUpdates(locationRequest, updateLocationCallback, Looper.getMainLooper());
             }
         }
-
     }
 
     /**
@@ -203,7 +203,7 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
     public void stopLocationUpdates() {
         if (updateLocationCallback != null) {
             this.fusedLocationProviderClient.removeLocationUpdates(updateLocationCallback);
-            updateLocationCallback = null; //TODO: check this
+            updateLocationCallback = null;
         }
     }
 }

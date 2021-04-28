@@ -125,6 +125,7 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
                 @Override
                 public void onProviderDisabled(@NonNull String provider) {
                     callback.callOnFail(new LocationProviderDisabledException());
+                    stopLocationUpdates();
                 }
 
                 @Override
