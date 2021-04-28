@@ -1,6 +1,7 @@
 package com.example.demo;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.Editable;
@@ -29,6 +30,9 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
     private CountDownTimer cTimer = null;
     private TextView waitingMessage;
     private LocationProvider locationProvider;
+    private Button displayMapButton;
+    private LatLng currCoordinates = null;
+    private MapDialog mapDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +44,7 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
         waitingMessage = findViewById(R.id.text_waiting_message);
         editDelay = findViewById(R.id.edit_text_interval);
         locationProvider = new LocationProvider(UpdateCoordinatesActivity.this);
+        displayMapButton = findViewById(R.id.button_display_map);
         editDelay.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -72,6 +77,11 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
                             toast.setGravity(Gravity.TOP, 0, 400);
                             toast.show();
                             cTimer.start(); //restart timer
+                            displayMapButton.setEnabled(true);
+                            currCoordinates = lastUpdatedLocation;
+                            if (mapDialog != null) {
+                                mapDialog.setCurrentPoint(lastUpdatedLocation);
+                            }
                         }
 
                         @Override
@@ -99,8 +109,20 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
             public void onClick(View v) {
                 stopTimer();
                 resetElementsState();
-//                waitingMessage.setVisibility(View.INVISIBLE);
-//                tvTimer.setVisibility(View.INVISIBLE);
+            }
+        });
+        displayMapButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mapDialog = new MapDialog(UpdateCoordinatesActivity.this, currCoordinates);
+                mapDialog.setCancelable(true);
+                mapDialog.show();
+                mapDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        mapDialog = null;
+                    }
+                });
             }
         });
     }
@@ -112,6 +134,7 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
         requestUpdatesButton.setEnabled(true);
         waitingMessage.setVisibility(View.INVISIBLE);
         tvTimer.setVisibility(View.INVISIBLE);
+        displayMapButton.setEnabled(false);
     }
 
     @Override

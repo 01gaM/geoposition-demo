@@ -51,6 +51,7 @@ public class CurrCoordinatesActivity extends BaseCoordinatesActivity {
                             toast.setGravity(Gravity.TOP, 0, 400);
                             toast.show();
                             resetElementsState();
+                            displayMapButton.setEnabled(true);
                         }
 
                         @Override

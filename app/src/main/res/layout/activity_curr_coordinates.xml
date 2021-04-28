@@ -35,7 +35,8 @@
             android:id="@+id/button_display_map"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/display_on_map" />
+            android:text="@string/display_on_map"
+            android:enabled="false"/>
 
     </LinearLayout>
 </LinearLayout>

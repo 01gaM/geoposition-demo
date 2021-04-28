@@ -23,11 +23,11 @@ import androidx.annotation.Nullable;
 public class MapDialog extends Dialog {
     private Button closeButton;
     private MapView mapView;
-    private GeoPoint startPoint;
+    private LatLng startPoint;
 
     public MapDialog(@NonNull Context context, LatLng coordinates) {
         super(context);
-        this.startPoint = new GeoPoint(coordinates.getLatitude(), coordinates.getLongitude());
+        this.startPoint = coordinates;
         Configuration.getInstance().load(context, PreferenceManager.getDefaultSharedPreferences(context));
         Configuration.getInstance().setUserAgentValue(context.getPackageName());
     }
@@ -38,19 +38,28 @@ public class MapDialog extends Dialog {
         this.setContentView(R.layout.dialog_map);
         mapView = findViewById(R.id.map);
         mapView.setTileSource(TileSourceFactory.MAPNIK);
+        setCurrentPoint(startPoint);
         IMapController mapController = mapView.getController();
         mapController.setZoom(15.5);
-        mapController.setCenter(startPoint);
-        Marker startMarker = new Marker(mapView);
-        startMarker.setPosition(startPoint);
-        startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-        mapView.getOverlays().add(startMarker);
         closeButton = findViewById(R.id.button_close);
         closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               onBackPressed();
+                onBackPressed();
             }
         });
+    }
+
+    public void setCurrentPoint(LatLng newPoint) {
+        GeoPoint newGeoPoint = new GeoPoint(newPoint.getLatitude(), newPoint.getLongitude());
+        IMapController mapController = mapView.getController();
+        mapController.setCenter(newGeoPoint);
+        Marker startMarker = new Marker(mapView);
+        startMarker.setPosition(newGeoPoint);
+        startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+        if (!mapView.getOverlays().isEmpty()) {
+            mapView.getOverlays().remove(0);
+        }
+        mapView.getOverlays().add(startMarker);
     }
 }

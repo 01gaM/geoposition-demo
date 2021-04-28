@@ -1,6 +1,7 @@
 package com.example.demo;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -16,6 +17,8 @@ import com.example.geopositionmodule.exceptions.NoLocationAccessException;
 public class LastCoordinatesActivity extends BaseCoordinatesActivity {
     private Button showToastButton;
     private LocationProvider locationProvider;
+    private Button displayMapButton;
+    private LatLng lastCoordinates = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,16 +26,19 @@ public class LastCoordinatesActivity extends BaseCoordinatesActivity {
         setContentView(R.layout.activity_last_coordinates);
         showToastButton = findViewById(R.id.request_last_coordinates_button);
         locationProvider = new LocationProvider(LastCoordinatesActivity.this);
+        displayMapButton = findViewById(R.id.button_display_map);
         Button.OnClickListener listener = new Button.OnClickListener() {
             @Override
             public void onClick(View view) {
                 try {
                     ILocationCallback myCallback = new ILocationCallback() {
                         @Override
-                        public void callOnSuccess(LatLng lastCoordinates) {
-                            Toast toast = Toast.makeText(getApplicationContext(), lastCoordinates.toString(), Toast.LENGTH_LONG);
+                        public void callOnSuccess(LatLng coordinates) {
+                            Toast toast = Toast.makeText(getApplicationContext(), coordinates.toString(), Toast.LENGTH_LONG);
                             toast.setGravity(Gravity.TOP, 0, 400);
                             toast.show();
+                            lastCoordinates = coordinates;
+                            displayMapButton.setEnabled(true);
                         }
 
                         @Override
@@ -54,6 +60,14 @@ public class LastCoordinatesActivity extends BaseCoordinatesActivity {
             }
         };
         showToastButton.setOnClickListener(listener);
+        displayMapButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Dialog dialog = new MapDialog(LastCoordinatesActivity.this, lastCoordinates);
+                dialog.setCancelable(true);
+                dialog.show();
+            }
+        });
     }
 
     @Override
