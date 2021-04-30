@@ -10,8 +10,9 @@ import android.location.LocationManager;
 import android.os.Bundle;
 
 import com.example.geopositionmodule.exceptions.IntervalValueOutOfRangeException;
+import com.example.geopositionmodule.exceptions.LocationNotDeterminedException;
 import com.example.geopositionmodule.exceptions.LocationProviderDisabledException;
-import com.example.geopositionmodule.exceptions.NoLocationAccessException;
+import com.example.geopositionmodule.exceptions.LocationPermissionNotGrantedException;
 
 import java.util.concurrent.TimeUnit;
 
@@ -48,34 +49,29 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
     }
 
     /**
-     * This method returns last known location from {@link #lastLocation} if it is not null and contains a cached location value.
+     * This method returns last known location from a cached location value.
      * This will never activate sensors to compute a new location, and will only ever return a cached location.
      *
-     * @throws NullPointerException Exception is thrown when {@link #lastLocation} is null.
+     * @throws NullPointerException Exception is thrown when location is null.
      */
     @Override
-    public void getLastKnownLocation(ILocationCallback myLocationCallback) throws NullPointerException, NoLocationAccessException, LocationProviderDisabledException {
+    public void getLastKnownLocation(ILocationCallback myLocationCallback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException {
         checkPermissionGranted(context);
         checkLocationSettingsEnabled(context);
-        if (LocationProviderClientAndroidAPI.lastLocation != null) {
-            myLocationCallback.callOnSuccess(new LatLng(LocationProviderClientAndroidAPI.lastLocation));
-        } else {
-            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                    || ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                String providerName = getAvailableProviderName();
-                Location location = locationManager.getLastKnownLocation(providerName);
-                if (location != null) {
-                    LocationProviderClientAndroidAPI.lastLocation = location;
-                    myLocationCallback.callOnSuccess(new LatLng(LocationProviderClientAndroidAPI.lastLocation));
-                } else {
-                    throw new NullPointerException("Последние координаты не были найдены (lastLocation = null).");
-                }
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            String providerName = getAvailableProviderName();
+            Location location = locationManager.getLastKnownLocation(providerName);
+            if (location != null) {
+                myLocationCallback.callOnSuccess(new LatLng(location));
+            } else {
+                myLocationCallback.callOnFail(new LocationNotDeterminedException());
             }
         }
     }
 
     @Override
-    public void requestCurrentLocation(ILocationCallback callback) throws NullPointerException, NoLocationAccessException, LocationProviderDisabledException {
+    public void requestCurrentLocation(ILocationCallback callback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException {
         checkPermissionGranted(context);
         checkLocationSettingsEnabled(context);
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
@@ -84,7 +80,6 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
             updateLocationListener = new LocationListener() {
                 @Override
                 public void onLocationChanged(@NonNull Location location) {
-                    lastLocation = location;
                     callback.callOnSuccess(new LatLng(location));
                     stopLocationUpdates();
                 }
@@ -107,7 +102,7 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
     }
 
     @Override
-    public void requestLocationUpdates(double intervalMin, ILocationCallback callback) throws NoLocationAccessException, LocationProviderDisabledException, IntervalValueOutOfRangeException {
+    public void requestLocationUpdates(double intervalMin, ILocationCallback callback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException, IntervalValueOutOfRangeException {
         checkPermissionGranted(context);
         checkLocationSettingsEnabled(context);
         checkUpdateIntervalValue(intervalMin);
@@ -118,7 +113,6 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
             updateLocationListener = new LocationListener() {
                 @Override
                 public void onLocationChanged(@NonNull Location location) {
-                    lastLocation = location;
                     callback.callOnSuccess(new LatLng(location));
                 }
 

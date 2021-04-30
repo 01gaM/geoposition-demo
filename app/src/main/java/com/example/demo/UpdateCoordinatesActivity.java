@@ -122,7 +122,7 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
                 handleException(e);
                 break;
             case (2):
-                if (CurrCoordinatesActivity.IS_PERMISSION_REQUESTED_FIRST_TIME || shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)
+                if (isPermissionRequestedFirstTime || shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)
                         && shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)) {
                     requestPermissions();
                 } else {

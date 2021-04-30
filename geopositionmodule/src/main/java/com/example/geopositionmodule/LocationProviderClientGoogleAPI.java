@@ -7,8 +7,9 @@ import android.location.Location;
 import android.os.Looper;
 
 import com.example.geopositionmodule.exceptions.IntervalValueOutOfRangeException;
+import com.example.geopositionmodule.exceptions.LocationNotDeterminedException;
 import com.example.geopositionmodule.exceptions.LocationProviderDisabledException;
-import com.example.geopositionmodule.exceptions.NoLocationAccessException;
+import com.example.geopositionmodule.exceptions.LocationPermissionNotGrantedException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
@@ -54,46 +55,45 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
 
     /**
      * This method requests last known location from {@link FusedLocationProviderClient}.
-     * If {@link #lastLocation} contains cached location value, than it'is considered as a result,
-     * else result is being retrieved by calling {@link FusedLocationProviderClient#getLastLocation()} method.
+     * Result is being retrieved by calling {@link FusedLocationProviderClient#getLastLocation()} method.
      *
      * @param myLocationCallback A callback to which a result as a LatLng instance is being passed to.
-     * @throws NullPointerException              Exception is thrown when null last location found:
-     *                                           - Location is turned off in the device settings (disabling location clears the cache)
-     *                                           - The device never recorded its location (a new device or a device that has been restored to factory settings)
-     *                                           - Google Play services on the device has restarted, and there is no active Fused Location Provider client that has requested location.
-     * @throws NoLocationAccessException         Exception is thrown when location permission is not granted.
-     * @throws LocationProviderDisabledException Exception is thrown when both GPS and network location providers are disabled.
+     * @throws NullPointerException                  Exception is thrown when null last location found:
+     *                                               - Location is turned off in the device settings (disabling location clears the cache)
+     *                                               - The device never recorded its location (a new device or a device that has been restored to factory settings)
+     *                                               - Google Play services on the device has restarted, and there is no active Fused Location Provider client that has requested location.
+     * @throws LocationPermissionNotGrantedException Exception is thrown when location permission is not granted.
+     * @throws LocationProviderDisabledException     Exception is thrown when both GPS and network location providers are disabled.
      */
     @Override
-    public void getLastKnownLocation(ILocationCallback myLocationCallback) throws NullPointerException, NoLocationAccessException, LocationProviderDisabledException {
+    public void getLastKnownLocation(ILocationCallback myLocationCallback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException {
         checkPermissionGranted(context);
         checkLocationSettingsEnabled(context);
-        if (LocationProviderClientGoogleAPI.lastLocation != null) {
-            myLocationCallback.callOnSuccess(new LatLng(LocationProviderClientGoogleAPI.lastLocation));
-        } else {
-            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-                    ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                this.fusedLocationProviderClient.getLastLocation()
-                        .addOnSuccessListener(new OnSuccessListener<Location>() {
-                            @Override
-                            public void onSuccess(Location location) {
-                                if (location == null) {
-                                    myLocationCallback.callOnFail(new NullPointerException("Последние координаты не были найдены (lastLocation = null)."));
-                                } else {
-                                    LocationProviderClientGoogleAPI.lastLocation = location;
-                                    myLocationCallback.callOnSuccess(new LatLng(location));
-                                }
+
+//            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+//                    ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        try {
+            this.fusedLocationProviderClient.getLastLocation()
+                    .addOnSuccessListener(new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            if (location == null) {
+                                myLocationCallback.callOnFail(new LocationNotDeterminedException());
+                            } else {
+                                myLocationCallback.callOnSuccess(new LatLng(location));
                             }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                myLocationCallback.callOnFail(e);
-                            }
-                        });
-            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            myLocationCallback.callOnFail(e);
+                        }
+                    });
+        } catch (SecurityException e) {
+            throw new LocationPermissionNotGrantedException();
         }
+        //}
     }
 
     /**
@@ -104,12 +104,12 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
      * ({@link FusedLocationProviderClient#getCurrentLocation(int, CancellationToken)} method was introduced in play-services-location:17.1.0)
      *
      * @param myLocationCallback A callback to which a result as a LatLng instance is being passed to.
-     * @throws NullPointerException              Exception is thrown if the device location can't be determined within reasonable time (tens of seconds)
-     * @throws NoLocationAccessException         Exception is thrown when location permission is not granted.
-     * @throws LocationProviderDisabledException Exception is thrown when both GPS and network location providers are disabled.
+     * @throws NullPointerException                  Exception is thrown if the device location can't be determined within reasonable time (tens of seconds)
+     * @throws LocationPermissionNotGrantedException Exception is thrown when location permission is not granted.
+     * @throws LocationProviderDisabledException     Exception is thrown when both GPS and network location providers are disabled.
      */
     @Override
-    public void requestCurrentLocation(ILocationCallback myLocationCallback) throws NullPointerException, NoLocationAccessException, LocationProviderDisabledException {
+    public void requestCurrentLocation(ILocationCallback myLocationCallback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException {
         checkPermissionGranted(context);
         checkLocationSettingsEnabled(context);
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
@@ -121,12 +121,11 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
                             if (location == null) {
                                 try {
                                     checkLocationSettingsEnabled(context);
-                                    myLocationCallback.callOnFail(new NullPointerException("Текущие координаты не были найдены (location = null)."));
+                                    myLocationCallback.callOnFail(new LocationNotDeterminedException());
                                 } catch (LocationProviderDisabledException e) {
                                     myLocationCallback.callOnFail(e);
                                 }
                             } else {
-                                LocationProviderClientGoogleAPI.lastLocation = location;
                                 myLocationCallback.callOnSuccess(new LatLng(location));
                             }
                         }
@@ -146,13 +145,13 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
      *
      * @param intervalMin        Location update interval value in minutes.
      * @param myLocationCallback A callback to which a result as a LatLng instance is being passed to.
-     * @throws NullPointerException              Exception is thrown when the device location can't be determined within reasonable time (tens of seconds)
-     * @throws NoLocationAccessException         Exception is thrown when location permission is not granted.
-     * @throws LocationProviderDisabledException Exception is thrown when both GPS and network location providers are disabled.
-     * @throws IntervalValueOutOfRangeException  Exception is thrown when input interval value is out of range.
+     * @throws NullPointerException                  Exception is thrown when the device location can't be determined within reasonable time (tens of seconds)
+     * @throws LocationPermissionNotGrantedException Exception is thrown when location permission is not granted.
+     * @throws LocationProviderDisabledException     Exception is thrown when both GPS and network location providers are disabled.
+     * @throws IntervalValueOutOfRangeException      Exception is thrown when input interval value is out of range.
      */
     @Override
-    public void requestLocationUpdates(double intervalMin, ILocationCallback myLocationCallback) throws NoLocationAccessException, LocationProviderDisabledException, IntervalValueOutOfRangeException, NullPointerException {
+    public void requestLocationUpdates(double intervalMin, ILocationCallback myLocationCallback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException, IntervalValueOutOfRangeException {
         checkUpdateIntervalValue(intervalMin);
         checkPermissionGranted(context);
         checkLocationSettingsEnabled(context);
@@ -171,8 +170,7 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
                 @Override
                 public void onLocationResult(@NonNull LocationResult locationResult) {
                     super.onLocationResult(locationResult);
-                    LocationProviderClientGoogleAPI.lastLocation = locationResult.getLastLocation();
-                    myLocationCallback.callOnSuccess(new LatLng(LocationProviderClientGoogleAPI.lastLocation));
+                    myLocationCallback.callOnSuccess(new LatLng(locationResult.getLastLocation()));
                 }
 
                 @Override
@@ -180,7 +178,7 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
                     if (!locationAvailability.isLocationAvailable()) {
                         try {
                             checkLocationSettingsEnabled(context);
-                            myLocationCallback.callOnFail(new NullPointerException("Текущие координаты не были найдены (location = null)."));
+                            myLocationCallback.callOnFail(new LocationNotDeterminedException());
                         } catch (LocationProviderDisabledException e) {
                             myLocationCallback.callOnFail(e);
                         }

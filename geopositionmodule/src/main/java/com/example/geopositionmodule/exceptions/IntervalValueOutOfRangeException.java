@@ -10,6 +10,8 @@ public class IntervalValueOutOfRangeException extends Exception{
     @Nullable
     @Override
     public String getMessage() {
-        return String.format(Locale.US, "Минимальное допустимое значение интервала = %.2f мин", LocationProvider.MINIMUM_UPDATE_INTERVAL);
+        return String.format(Locale.US, "Значение интервала должно быть от %.2f до %d мин",
+                LocationProvider.MINIMUM_UPDATE_INTERVAL,
+                LocationProvider.MAXIMUM_UPDATE_INTERVAL);
     }
 }

@@ -2,10 +2,6 @@ package com.example.geopositionmodule;
 
 import android.content.Context;
 
-import com.example.geopositionmodule.exceptions.IntervalValueOutOfRangeException;
-import com.example.geopositionmodule.exceptions.LocationProviderDisabledException;
-import com.example.geopositionmodule.exceptions.NoLocationAccessException;
-
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 

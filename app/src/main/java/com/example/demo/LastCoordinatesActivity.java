@@ -12,7 +12,7 @@ import com.example.geopositionmodule.ILocationCallback;
 import com.example.geopositionmodule.LatLng;
 import com.example.geopositionmodule.LocationProvider;
 import com.example.geopositionmodule.exceptions.LocationProviderDisabledException;
-import com.example.geopositionmodule.exceptions.NoLocationAccessException;
+import com.example.geopositionmodule.exceptions.LocationPermissionNotGrantedException;
 
 public class LastCoordinatesActivity extends BaseCoordinatesActivity {
     private Button showToastButton;
@@ -47,14 +47,14 @@ public class LastCoordinatesActivity extends BaseCoordinatesActivity {
                         }
                     };
                     locationProvider.getLastKnownLocation(myCallback);
-                } catch (NoLocationAccessException e) {
-                    if (CurrCoordinatesActivity.IS_PERMISSION_REQUESTED_FIRST_TIME || shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)
+                } catch (LocationPermissionNotGrantedException e) {
+                    if (isPermissionRequestedFirstTime || shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)
                             && shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)) {
                         requestPermissions();
                     } else {
                         handleException(e);
                     }
-                } catch (NullPointerException | LocationProviderDisabledException e) {
+                } catch (LocationProviderDisabledException e) {
                     handleException(e);
                 }
             }

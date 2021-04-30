@@ -14,15 +14,14 @@ import com.example.geopositionmodule.ILocationCallback;
 import com.example.geopositionmodule.LatLng;
 import com.example.geopositionmodule.LocationProvider;
 import com.example.geopositionmodule.exceptions.LocationProviderDisabledException;
-import com.example.geopositionmodule.exceptions.NoLocationAccessException;
+import com.example.geopositionmodule.exceptions.LocationPermissionNotGrantedException;
 
 public class CurrCoordinatesActivity extends BaseCoordinatesActivity {
     private Button showToastButton;
     private LocationProvider locationProvider;
     private ProgressBar progressBar;
     private TextView progressMessage;
-    public static final int REQUEST_LOCATION_PERMISSION_SUCCESS = 0;
-    static boolean IS_PERMISSION_REQUESTED_FIRST_TIME = true;
+    public static final int REQUEST_LOCATION_PERMISSION_CODE = 0;
     private Button displayMapButton;
     private LatLng currCoordinates = null;
 
@@ -60,14 +59,14 @@ public class CurrCoordinatesActivity extends BaseCoordinatesActivity {
                         }
                     };
                     locationProvider.requestCurrentLocation(myCallback);
-                } catch (NoLocationAccessException e) {
-                    if (CurrCoordinatesActivity.IS_PERMISSION_REQUESTED_FIRST_TIME || shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)
+                } catch (LocationPermissionNotGrantedException e) {
+                    if (isPermissionRequestedFirstTime || shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)
                             && shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)) {
                         requestPermissions();
                     } else {
                         handleException(e);
                     }
-                } catch (LocationProviderDisabledException | NullPointerException e) {
+                } catch (LocationProviderDisabledException e) {
                     handleException(e);
                 }
             }

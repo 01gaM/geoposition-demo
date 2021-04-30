@@ -1,6 +1,5 @@
 package com.example.demo;
 
-import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -15,7 +14,7 @@ import com.example.geopositionmodule.LatLng;
 import com.example.geopositionmodule.LocationProvider;
 import com.example.geopositionmodule.exceptions.IntervalValueOutOfRangeException;
 import com.example.geopositionmodule.exceptions.LocationProviderDisabledException;
-import com.example.geopositionmodule.exceptions.NoLocationAccessException;
+import com.example.geopositionmodule.exceptions.LocationPermissionNotGrantedException;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -117,7 +116,7 @@ public class UpdateService extends Service {
 
         try {
             locationProvider.requestLocationUpdates(interval, myCallback);
-        } catch (NoLocationAccessException e) {
+        } catch (LocationPermissionNotGrantedException e) {
             stopForeground(true);
             currException = e;
             try {

@@ -5,9 +5,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 
 public interface Alertable {
-    default void displayAlert(String message, Context context) {
+    default void displayAlert(String message, String title, Context context) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle("Ошибка!")
+        builder.setTitle(title)
                 .setMessage(message)
                 .setCancelable(true)
                 .setNegativeButton("Закрыть", new DialogInterface.OnClickListener() {
