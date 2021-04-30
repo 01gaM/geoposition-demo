@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.demo">
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -17,10 +18,14 @@
         </activity>
         <activity android:name="com.example.demo.CurrCoordinatesActivity"></activity>
         <activity android:name="com.example.demo.LastCoordinatesActivity"></activity>
-        <activity android:name="com.example.demo.UpdateCoordinatesActivity"></activity>
-        <activity android:name="com.example.demo.SpeedActivity"></activity>
-
+        <activity android:name="com.example.demo.UpdateCoordinatesActivity" android:launchMode="singleTop"></activity>
+        <activity android:name="com.example.demo.SpeedActivity" android:launchMode="singleTop"></activity>
+        <service android:foregroundServiceType="location"
+            android:name=".UpdateService" />
     </application>
+
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"  />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
 </manifest>
