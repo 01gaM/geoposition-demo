@@ -90,7 +90,9 @@ public class SpeedActivity extends BaseCoordinatesActivity {
         LocationProvider locationProvider = UpdateService.getLocationProvider();
         if (locationProvider != null)
             locationProvider.stopLocationUpdates();
-        stopService(intent);
+        if (intent != null) {
+            stopService(intent);
+        }
         super.onDestroy();
     }
 

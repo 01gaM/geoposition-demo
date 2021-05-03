@@ -9,19 +9,33 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.example.demo.MainActivity">
+        <activity
+            android:name="com.example.demo.MainActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.example.demo.CurrCoordinatesActivity"></activity>
-        <activity android:name="com.example.demo.LastCoordinatesActivity"></activity>
-        <activity android:name="com.example.demo.UpdateCoordinatesActivity" android:launchMode="singleTop"></activity>
-        <activity android:name="com.example.demo.SpeedActivity" android:launchMode="singleTop"></activity>
-        <service android:foregroundServiceType="location"
-            android:name=".UpdateService" />
+        <activity
+            android:name="com.example.demo.CurrCoordinatesActivity"
+            android:screenOrientation="portrait"></activity>
+        <activity
+            android:name="com.example.demo.LastCoordinatesActivity"
+            android:screenOrientation="portrait"></activity>
+        <activity
+            android:name="com.example.demo.UpdateCoordinatesActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"></activity>
+        <activity
+            android:name="com.example.demo.SpeedActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"></activity>
+
+        <service
+            android:name=".UpdateService"
+            android:foregroundServiceType="location" />
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />

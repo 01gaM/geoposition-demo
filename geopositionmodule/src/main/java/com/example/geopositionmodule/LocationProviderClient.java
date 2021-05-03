@@ -15,9 +15,23 @@ import static android.content.Context.LOCATION_SERVICE;
 
 public abstract class LocationProviderClient implements ILocationProvider {
     protected final Context context;
+    protected AccuracyPriority accuracyPriority = AccuracyPriority.PRIORITY_HIGH_ACCURACY;
 
     protected LocationProviderClient(Context context) {
         this.context = context;
+    }
+
+    /**
+     * This method allows to set a specific accuracy priority to a LocationProvider instance
+     *
+     * @param accuracyPriority A new accuracy priority value from {@link com.example.geopositionmodule.AccuracyPriority} enum that is to be set to {@link #accuracyPriority} field
+     */
+    public void setAccuracyPriority(AccuracyPriority accuracyPriority) {
+        this.accuracyPriority = accuracyPriority;
+    }
+
+    public AccuracyPriority getAccuracyPriority() {
+        return accuracyPriority;
     }
 
     /**

@@ -34,18 +34,33 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
         return updateLocationListener;
     }
 
-    private String getAvailableProviderName() throws NullPointerException {
-        // Retrieve a list of location providers that have fine accuracy, no monetary cost, etc
+    private Criteria getCriteria() {
         Criteria criteria = new Criteria();
-        criteria.setAccuracy(Criteria.ACCURACY_FINE); //TODO: check this
-        criteria.setPowerRequirement(Criteria.POWER_LOW);
-        String providerName = locationManager.getBestProvider(criteria, true);
+        switch (accuracyPriority) {
+            case PRIORITY_LOW_POWER:
+                criteria.setPowerRequirement(Criteria.POWER_LOW);
+                criteria.setAccuracy(Criteria.NO_REQUIREMENT);
+                break;
+            case PRIORITY_BALANCED_POWER_ACCURACY:
+                criteria.setPowerRequirement(Criteria.POWER_MEDIUM);
+                criteria.setAccuracy(Criteria.NO_REQUIREMENT);
+                break;
+            case PRIORITY_HIGH_ACCURACY:
+                criteria.setPowerRequirement(Criteria.POWER_HIGH);
+                criteria.setAccuracy(Criteria.ACCURACY_FINE);
+                break;
+        }
+        return criteria;
+    }
 
+    private String getAvailableProviderName() throws LocationProviderDisabledException {
+        Criteria criteria = getCriteria();
+        String providerName = locationManager.getBestProvider(criteria, true);
         // If no suitable provider is found, null is returned.
         if (providerName != null) {
             return providerName;
         }
-        throw new NullPointerException("Доступный подходящий провайдер данных о местоположении не найден.");
+        throw new LocationProviderDisabledException(); //Доступный подходящий провайдер данных о местоположении не найден
     }
 
     /**

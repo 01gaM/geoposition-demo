@@ -145,7 +145,9 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
     @Override
     protected void onDestroy() {
         stopTimer();
-        stopService(intent);
+        if (intent != null) {
+            stopService(intent);
+        }
         super.onDestroy();
     }
 

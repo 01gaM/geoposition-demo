@@ -30,7 +30,6 @@ import androidx.core.app.ActivityCompat;
 public class LocationProviderClientGoogleAPI extends LocationProviderClient {
     private final FusedLocationProviderClient fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context); //an instance of a Fused Location Provider API Client
     private LocationCallback updateLocationCallback = null; //a callback used in requestLocationUpdates()
-    private int accuracyPriority = AccuracyPriority.PRIORITY_HIGH_ACCURACY.getCode(); //accuracyPriority used in fusedLocationProviderClient
 
     protected LocationProviderClientGoogleAPI(Context context) {
         super(context);
@@ -40,18 +39,6 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
         return updateLocationCallback;
     }
 
-    public int getAccuracyPriority() {
-        return accuracyPriority;
-    }
-
-    /**
-     * This method allows to set a specific accuracy priority to a LocationProvider instance
-     *
-     * @param accuracyPriority A new accuracy priority value from {@link com.example.geopositionmodule.AccuracyPriority} enum that is to be set to {@link #accuracyPriority} field
-     */
-    public void setAccuracyPriority(AccuracyPriority accuracyPriority) {
-        this.accuracyPriority = accuracyPriority.getCode();
-    }
 
     /**
      * This method requests last known location from {@link FusedLocationProviderClient}.
@@ -114,7 +101,7 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
         checkLocationSettingsEnabled(context);
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                 ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            this.fusedLocationProviderClient.getCurrentLocation(accuracyPriority, null)
+            this.fusedLocationProviderClient.getCurrentLocation(accuracyPriority.getCode(), null)
                     .addOnSuccessListener(new OnSuccessListener<Location>() {
                         @Override
                         public void onSuccess(Location location) {
@@ -161,7 +148,7 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
             long millis = (long) (intervalMin * 60 * 1000);
             locationRequest.setInterval(millis);
             locationRequest.setFastestInterval(millis);
-            locationRequest.setPriority(accuracyPriority);
+            locationRequest.setPriority(accuracyPriority.getCode());
 
             LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
             builder.addLocationRequest(locationRequest);

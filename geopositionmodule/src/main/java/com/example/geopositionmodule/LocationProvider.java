@@ -75,4 +75,9 @@ public class LocationProvider implements ILocationProvider {
     public void stopLocationUpdates() {
         locationProviderClient.stopLocationUpdates();
     }
+
+    @Override
+    public void setAccuracyPriority(AccuracyPriority accuracyPriority) {
+        locationProviderClient.setAccuracyPriority(accuracyPriority);
+    }
 }

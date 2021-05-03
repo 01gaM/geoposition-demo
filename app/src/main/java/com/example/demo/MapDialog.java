@@ -38,6 +38,7 @@ public class MapDialog extends Dialog {
         this.setContentView(R.layout.dialog_map);
         mapView = findViewById(R.id.map);
         mapView.setTileSource(TileSourceFactory.MAPNIK);
+        mapView.setMultiTouchControls(true);
         setCurrentPoint(startPoint);
         IMapController mapController = mapView.getController();
         mapController.setZoom(15.5);
