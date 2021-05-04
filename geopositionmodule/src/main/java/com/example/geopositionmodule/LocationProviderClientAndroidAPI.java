@@ -7,6 +7,7 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.os.Bundle;
 
 import com.example.geopositionmodule.exceptions.IntervalValueOutOfRangeException;
@@ -54,9 +55,14 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
     }
 
     private String getAvailableProviderName() throws LocationProviderDisabledException {
-        Criteria criteria = getCriteria();
-        String providerName = locationManager.getBestProvider(criteria, true);
-        // If no suitable provider is found, null is returned.
+        String providerName;
+        if (accuracyPriority == AccuracyPriority.PRIORITY_NO_POWER && locationManager.isProviderEnabled(LocationManager.PASSIVE_PROVIDER)) {
+            providerName = LocationManager.PASSIVE_PROVIDER;
+        } else {
+            Criteria criteria = getCriteria();
+            providerName = locationManager.getBestProvider(criteria, true);
+        }
+        // If no suitable enabled provider is found, null is returned
         if (providerName != null) {
             return providerName;
         }
