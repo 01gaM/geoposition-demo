@@ -45,7 +45,7 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
      * Result is being retrieved by calling {@link FusedLocationProviderClient#getLastLocation()} method.
      *
      * @param myLocationCallback A callback to which a result as a LatLng instance is being passed to.
-     * @throws NullPointerException                  Exception is thrown when null last location found:
+     * @throws LocationNotDeterminedException        Exception is thrown when null last location found due to empty location cache:
      *                                               - Location is turned off in the device settings (disabling location clears the cache)
      *                                               - The device never recorded its location (a new device or a device that has been restored to factory settings)
      *                                               - Google Play services on the device has restarted, and there is no active Fused Location Provider client that has requested location.
@@ -53,13 +53,10 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
      * @throws LocationProviderDisabledException     Exception is thrown when both GPS and network location providers are disabled.
      */
     @Override
-    public void getLastKnownLocation(ILocationCallback myLocationCallback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException {
-        checkPermissionGranted(context);
-        checkLocationSettingsEnabled(context);
-
-//            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-//                    ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-        try {
+    public void getLastKnownLocation(ILocationCallback myLocationCallback) throws LocationPermissionNotGrantedException {
+        //  checkLocationSettingsEnabled(context);
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             this.fusedLocationProviderClient.getLastLocation()
                     .addOnSuccessListener(new OnSuccessListener<Location>() {
                         @Override
@@ -70,17 +67,16 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
                                 myLocationCallback.callOnSuccess(new LatLng(location));
                             }
                         }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            myLocationCallback.callOnFail(e);
-                        }
                     });
-        } catch (SecurityException e) {
+//                    .addOnFailureListener(new OnFailureListener() {
+//                        @Override
+//                        public void onFailure(@NonNull Exception e) {
+//                            myLocationCallback.callOnFail(e);
+//                        }
+//                    });
+        } else {
             throw new LocationPermissionNotGrantedException();
         }
-        //}
     }
 
     /**
@@ -97,7 +93,6 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
      */
     @Override
     public void requestCurrentLocation(ILocationCallback myLocationCallback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException {
-        checkPermissionGranted(context);
         checkLocationSettingsEnabled(context);
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                 ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -108,7 +103,7 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
                             if (location == null) {
                                 try {
                                     checkLocationSettingsEnabled(context);
-                                    myLocationCallback.callOnFail(new LocationNotDeterminedException());
+                                    myLocationCallback.callOnFail(new LocationNotDeterminedException()); //device location can't be determined within reasonable time (tens of seconds)
                                 } catch (LocationProviderDisabledException e) {
                                     myLocationCallback.callOnFail(e);
                                 }
@@ -116,13 +111,15 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
                                 myLocationCallback.callOnSuccess(new LatLng(location));
                             }
                         }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            myLocationCallback.callOnFail(e);
-                        }
                     });
+//                    .addOnFailureListener(new OnFailureListener() {
+//                        @Override
+//                        public void onFailure(@NonNull Exception e) {
+//                            myLocationCallback.callOnFail(e);
+//                        }
+//                    });
+        } else {
+            throw new LocationPermissionNotGrantedException();
         }
     }
 
@@ -140,10 +137,9 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
     @Override
     public void requestLocationUpdates(double intervalMin, ILocationCallback myLocationCallback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException, IntervalValueOutOfRangeException {
         checkUpdateIntervalValue(intervalMin);
-        checkPermissionGranted(context);
         checkLocationSettingsEnabled(context);
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-                ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             LocationRequest locationRequest = LocationRequest.create();
             long millis = (long) (intervalMin * 60 * 1000);
             locationRequest.setInterval(millis);
@@ -173,10 +169,9 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
                     }
                 }
             };
-            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                    || ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                this.fusedLocationProviderClient.requestLocationUpdates(locationRequest, updateLocationCallback, Looper.getMainLooper());
-            }
+            this.fusedLocationProviderClient.requestLocationUpdates(locationRequest, updateLocationCallback, Looper.getMainLooper());
+        } else {
+            throw new LocationPermissionNotGrantedException();
         }
     }
 

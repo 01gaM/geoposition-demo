@@ -52,7 +52,7 @@ public abstract class LocationProviderClient implements ILocationProvider {
      * This method checks whether the location access permission is granted for the app or not.
      *
      * @throws LocationPermissionNotGrantedException Exception is thrown when both {@link Manifest.permission#ACCESS_FINE_LOCATION}
-     *                                   and {@link Manifest.permission#ACCESS_COARSE_LOCATION} and not granted.
+     *                                               and {@link Manifest.permission#ACCESS_COARSE_LOCATION} and not granted.
      */
     protected void checkPermissionGranted(Context context) throws LocationPermissionNotGrantedException {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
@@ -60,13 +60,14 @@ public abstract class LocationProviderClient implements ILocationProvider {
             throw new LocationPermissionNotGrantedException();
     }
 
+
     /**
      * This method checks whether the input interval value in minutes is out of range or not.
      *
      * @param intervalMin An input value for {@link #requestLocationUpdates(double, ILocationCallback)} method.
      * @throws IntervalValueOutOfRangeException Exception is thrown when input value is
-     * less than {@link LocationProvider#MINIMUM_UPDATE_INTERVAL} or
-     * more than {@link LocationProvider#MINIMUM_UPDATE_INTERVAL}.
+     *                                          less than {@link LocationProvider#MINIMUM_UPDATE_INTERVAL} or
+     *                                          more than {@link LocationProvider#MINIMUM_UPDATE_INTERVAL}.
      */
     protected void checkUpdateIntervalValue(double intervalMin) throws IntervalValueOutOfRangeException {
         if (intervalMin < LocationProvider.MINIMUM_UPDATE_INTERVAL || intervalMin > LocationProvider.MAXIMUM_UPDATE_INTERVAL) {
