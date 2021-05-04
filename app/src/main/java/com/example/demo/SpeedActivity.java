@@ -63,7 +63,7 @@ public class SpeedActivity extends BaseCoordinatesActivity {
         super.onActivityResult(requestCode, resultCode, data);
         Exception e = UpdateService.getCurrException();
         switch (resultCode) {
-            case (0):
+            case (UpdateService.UPDATE_SUCCEEDED):
                 LatLng lastUpdatedLocation = UpdateService.getLocation();
                 waitingMessage.setVisibility(View.INVISIBLE);
                 progressBar.setVisibility(View.INVISIBLE);
@@ -71,10 +71,10 @@ public class SpeedActivity extends BaseCoordinatesActivity {
                 tvSpeedValue.setVisibility(View.VISIBLE);
                 stopSpeedUpdatesButton.setEnabled(true);
                 break;
-            case (1):
+            case (UpdateService.UPDATE_FAILED):
                 handleException(e);
                 break;
-            case (2):
+            case (UpdateService.LOCATION_PERMISSION_NOT_GRANTED):
                 if (isPermissionRequestedFirstTime || shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)
                         && shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)) {
                     requestPermissions();

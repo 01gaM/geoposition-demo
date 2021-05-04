@@ -29,6 +29,9 @@ public class UpdateService extends Service {
     private static Exception currException;
     private boolean showSpeed;
     private Class<?> activityClassName;
+    public static final int UPDATE_SUCCEEDED = 0;
+    public static final int UPDATE_FAILED = 1;
+    public static final int LOCATION_PERMISSION_NOT_GRANTED = 2;
 
     public void onCreate() {
         super.onCreate();
@@ -97,7 +100,7 @@ public class UpdateService extends Service {
                 UpdateService.location = lastUpdatedLocation;
                 startForeground(1, notification);
                 try {
-                    pendingIntent.send(0);
+                    pendingIntent.send(UPDATE_SUCCEEDED);
                 } catch (PendingIntent.CanceledException e) {
                     e.printStackTrace();
                 }
@@ -107,7 +110,7 @@ public class UpdateService extends Service {
             public void callOnFail(Exception e) {
                 stopForeground(true);
                 try {
-                    pendingIntent.send(1);
+                    pendingIntent.send(UPDATE_FAILED);
                 } catch (PendingIntent.CanceledException canceledException) {
                     canceledException.printStackTrace();
                 }
@@ -120,7 +123,7 @@ public class UpdateService extends Service {
             stopForeground(true);
             currException = e;
             try {
-                pendingIntent.send(2);
+                pendingIntent.send(LOCATION_PERMISSION_NOT_GRANTED);
             } catch (PendingIntent.CanceledException canceledException) {
                 canceledException.printStackTrace();
             }
@@ -128,7 +131,7 @@ public class UpdateService extends Service {
             stopForeground(true);
             currException = e;
             try {
-                pendingIntent.send(1);
+                pendingIntent.send(UPDATE_FAILED);
             } catch (PendingIntent.CanceledException canceledException) {
                 canceledException.printStackTrace();
             }

@@ -106,7 +106,7 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
         super.onActivityResult(requestCode, resultCode, data);
         Exception e = UpdateService.getCurrException();
         switch (resultCode) {
-            case (0):
+            case (UpdateService.UPDATE_SUCCEEDED):
                 LatLng lastUpdatedLocation = UpdateService.getLocation();
                 Toast toast = Toast.makeText(UpdateCoordinatesActivity.this, lastUpdatedLocation.toString(), Toast.LENGTH_LONG);
                 toast.setGravity(Gravity.TOP, 0, 400);
@@ -118,10 +118,10 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
                     mapDialog.setCurrentPoint(lastUpdatedLocation);
                 }
                 break;
-            case (1):
+            case (UpdateService.UPDATE_FAILED):
                 handleException(e);
                 break;
-            case (2):
+            case (UpdateService.LOCATION_PERMISSION_NOT_GRANTED):
                 if (isPermissionRequestedFirstTime || shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)
                         && shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)) {
                     requestPermissions();

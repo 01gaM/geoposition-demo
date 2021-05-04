@@ -40,7 +40,6 @@ public class LocationProvider implements ILocationProvider {
         //return new LocationProviderClientAndroidAPI(context);
     }
 
-
     /**
      * This method checks whether the Google Play services APK is available and up-to-date on this device or not.
      *
