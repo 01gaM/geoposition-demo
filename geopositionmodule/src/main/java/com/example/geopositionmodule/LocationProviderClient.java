@@ -48,17 +48,17 @@ public abstract class LocationProviderClient implements ILocationProvider {
         }
     }
 
-    /**
-     * This method checks whether the location access permission is granted for the app or not.
-     *
-     * @throws LocationPermissionNotGrantedException Exception is thrown when both {@link Manifest.permission#ACCESS_FINE_LOCATION}
-     *                                               and {@link Manifest.permission#ACCESS_COARSE_LOCATION} and not granted.
-     */
-    protected void checkPermissionGranted(Context context) throws LocationPermissionNotGrantedException {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-            throw new LocationPermissionNotGrantedException();
-    }
+//    /**
+//     * This method checks whether the location access permission is granted for the app or not.
+//     *
+//     * @throws LocationPermissionNotGrantedException Exception is thrown when both {@link Manifest.permission#ACCESS_FINE_LOCATION}
+//     *                                               and {@link Manifest.permission#ACCESS_COARSE_LOCATION} and not granted.
+//     */
+//    protected void checkPermissionGranted(Context context) throws LocationPermissionNotGrantedException {
+//        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+//                && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+//            throw new LocationPermissionNotGrantedException();
+//    }
 
 
     /**

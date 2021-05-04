@@ -71,8 +71,6 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
      */
     @Override
     public void getLastKnownLocation(ILocationCallback myLocationCallback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException {
-        checkPermissionGranted(context);
-        checkLocationSettingsEnabled(context);
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             String providerName = getAvailableProviderName();
@@ -80,14 +78,15 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
             if (location != null) {
                 myLocationCallback.callOnSuccess(new LatLng(location));
             } else {
-                myLocationCallback.callOnFail(new LocationNotDeterminedException());
+                myLocationCallback.callOnFail(new LocationNotDeterminedException()); //null last location found due to empty location cache
             }
+        } else {
+            throw new LocationPermissionNotGrantedException();
         }
     }
 
     @Override
     public void requestCurrentLocation(ILocationCallback callback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException {
-        checkPermissionGranted(context);
         checkLocationSettingsEnabled(context);
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                 ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -113,12 +112,13 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
                     TimeUnit.MINUTES.toMillis(100),
                     5,             // 5 meters
                     updateLocationListener);
+        } else {
+            throw new LocationPermissionNotGrantedException();
         }
     }
 
     @Override
     public void requestLocationUpdates(double intervalMin, ILocationCallback callback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException, IntervalValueOutOfRangeException {
-        checkPermissionGranted(context);
         checkLocationSettingsEnabled(context);
         checkUpdateIntervalValue(intervalMin);
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
@@ -145,6 +145,8 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
                     intervalMillis,
                     0,
                     updateLocationListener);
+        } else {
+            throw new LocationPermissionNotGrantedException();
         }
     }
 
