@@ -16,8 +16,9 @@ public class SpeedActivity extends BaseCoordinatesActivity {
     private Button showCurrSpeedButton;
     private Button stopSpeedUpdatesButton;
     private TextView tvSpeedValue;
-    private TextView waitingMessage;
+   // private TextView waitingMessage;
     private ProgressBar progressBar;
+    private TextView tvSpeedMessage;
     private Intent intent;
 
     @Override
@@ -26,14 +27,16 @@ public class SpeedActivity extends BaseCoordinatesActivity {
         setContentView(R.layout.activity_speed);
         showCurrSpeedButton = findViewById(R.id.button_request_speed_updates);
         stopSpeedUpdatesButton = findViewById(R.id.button_stop_speed_updates);
-        waitingMessage = findViewById(R.id.text_waiting_message);
+      //  waitingMessage = findViewById(R.id.text_waiting_message);
         tvSpeedValue = findViewById(R.id.text_current_speed_value);
         progressBar = findViewById(R.id.progress_bar_speed);
+        tvSpeedMessage = findViewById(R.id.text_current_speed_message);
         Button.OnClickListener listener = new Button.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showCurrSpeedButton.setEnabled(false);
-                waitingMessage.setVisibility(View.VISIBLE);
+                tvSpeedMessage.setVisibility(View.VISIBLE);
+                tvSpeedMessage.setText(R.string.request_in_progress);
                 progressBar.setVisibility(View.VISIBLE);
 
                 int TASK_CODE = 2;
@@ -65,7 +68,8 @@ public class SpeedActivity extends BaseCoordinatesActivity {
         switch (resultCode) {
             case (UpdateService.UPDATE_SUCCEEDED):
                 LatLng lastUpdatedLocation = UpdateService.getLocation();
-                waitingMessage.setVisibility(View.INVISIBLE);
+                //waitingMessage.setVisibility(View.INVISIBLE);
+                tvSpeedMessage.setText(R.string.message_current_speed);
                 progressBar.setVisibility(View.INVISIBLE);
                 tvSpeedValue.setText(String.format("%s м/с", lastUpdatedLocation.getSpeed()));
                 tvSpeedValue.setVisibility(View.VISIBLE);
@@ -99,8 +103,8 @@ public class SpeedActivity extends BaseCoordinatesActivity {
     @Override
     protected void resetElementsState() {
         progressBar.setVisibility(View.INVISIBLE);
-        waitingMessage.setVisibility(View.INVISIBLE);
         tvSpeedValue.setVisibility(View.INVISIBLE);
+        tvSpeedMessage.setVisibility(View.INVISIBLE);
         stopSpeedUpdatesButton.setEnabled(false);
         showCurrSpeedButton.setEnabled(true);
     }

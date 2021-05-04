@@ -68,12 +68,6 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
                             }
                         }
                     });
-//                    .addOnFailureListener(new OnFailureListener() {
-//                        @Override
-//                        public void onFailure(@NonNull Exception e) {
-//                            myLocationCallback.callOnFail(e);
-//                        }
-//                    });
         } else {
             throw new LocationPermissionNotGrantedException();
         }

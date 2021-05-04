@@ -1,15 +1,15 @@
 package com.example.demo;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.pm.PackageManager;
 
 import com.example.geopositionmodule.exceptions.LocationPermissionNotGrantedException;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
-public abstract class BaseCoordinatesActivity extends Activity implements Alertable, ActivityCompat.OnRequestPermissionsResultCallback{
+public abstract class BaseCoordinatesActivity extends AppCompatActivity implements Alertable, ActivityCompat.OnRequestPermissionsResultCallback{
     protected static boolean isPermissionRequestedFirstTime = true;
 
     @Override
