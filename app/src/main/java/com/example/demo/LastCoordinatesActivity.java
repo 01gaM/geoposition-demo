@@ -54,8 +54,6 @@ public class LastCoordinatesActivity extends BaseCoordinatesActivity {
                     } else {
                         handleException(e);
                     }
-                } catch (LocationProviderDisabledException e) {
-                    handleException(e);
                 }
             }
         };

@@ -2,6 +2,7 @@ package com.example.geopositionmodule;
 
 import android.content.Context;
 
+import com.example.geopositionmodule.exceptions.EmptyLocationCacheException;
 import com.example.geopositionmodule.exceptions.GooglePlayServicesNotAvailableException;
 import com.example.geopositionmodule.exceptions.IntervalValueOutOfRangeException;
 import com.example.geopositionmodule.exceptions.LocationProviderDisabledException;
@@ -30,14 +31,14 @@ public class LocationProvider implements ILocationProvider {
     }
 
     private LocationProviderClient createLocationProviderClient() {
-        try {
-            checkGooglePlayServicesAvailable(context);
-        } catch (GooglePlayServicesNotAvailableException e) {
-            e.printStackTrace();
-            return new LocationProviderClientAndroidAPI(context);
-        }
-        return new LocationProviderClientGoogleAPI(context);
-        //return new LocationProviderClientAndroidAPI(context);
+//        try {
+//            checkGooglePlayServicesAvailable(context);
+//        } catch (GooglePlayServicesNotAvailableException e) {
+//            e.printStackTrace();
+//            return new LocationProviderClientAndroidAPI(context);
+//        }
+//        return new LocationProviderClientGoogleAPI(context);
+        return new LocationProviderClientAndroidAPI(context);
     }
 
     /**
@@ -56,7 +57,7 @@ public class LocationProvider implements ILocationProvider {
     }
 
     @Override
-    public void getLastKnownLocation(ILocationCallback callback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException {
+    public void getLastKnownLocation(ILocationCallback callback) throws LocationPermissionNotGrantedException {
         locationProviderClient.getLastKnownLocation(callback);
     }
 

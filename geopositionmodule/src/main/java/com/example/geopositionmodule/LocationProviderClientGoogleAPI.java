@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Looper;
 
+import com.example.geopositionmodule.exceptions.EmptyLocationCacheException;
 import com.example.geopositionmodule.exceptions.IntervalValueOutOfRangeException;
 import com.example.geopositionmodule.exceptions.LocationNotDeterminedException;
 import com.example.geopositionmodule.exceptions.LocationProviderDisabledException;
@@ -54,7 +55,6 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
      */
     @Override
     public void getLastKnownLocation(ILocationCallback myLocationCallback) throws LocationPermissionNotGrantedException {
-        //  checkLocationSettingsEnabled(context);
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                 ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             this.fusedLocationProviderClient.getLastLocation()
@@ -62,7 +62,7 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
                         @Override
                         public void onSuccess(Location location) {
                             if (location == null) {
-                                myLocationCallback.callOnFail(new LocationNotDeterminedException());
+                                myLocationCallback.callOnFail(new EmptyLocationCacheException());
                             } else {
                                 myLocationCallback.callOnSuccess(new LatLng(location));
                             }

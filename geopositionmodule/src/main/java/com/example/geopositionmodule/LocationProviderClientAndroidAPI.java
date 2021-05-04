@@ -10,11 +10,13 @@ import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
 
+import com.example.geopositionmodule.exceptions.EmptyLocationCacheException;
 import com.example.geopositionmodule.exceptions.IntervalValueOutOfRangeException;
 import com.example.geopositionmodule.exceptions.LocationNotDeterminedException;
 import com.example.geopositionmodule.exceptions.LocationProviderDisabledException;
 import com.example.geopositionmodule.exceptions.LocationPermissionNotGrantedException;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
@@ -76,15 +78,26 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
      * @throws NullPointerException Exception is thrown when location is null.
      */
     @Override
-    public void getLastKnownLocation(ILocationCallback myLocationCallback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException {
+    public void getLastKnownLocation(ILocationCallback myLocationCallback) throws LocationPermissionNotGrantedException {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            String providerName = getAvailableProviderName();
-            Location location = locationManager.getLastKnownLocation(providerName);
+            List<String> providerNames = locationManager.getAllProviders();
+            Location location = null;
+            float bestAccuracy = Float.MAX_VALUE;
+            for (String currProvider : providerNames) {
+                Location currLocation = locationManager.getLastKnownLocation(currProvider);
+                if (currLocation != null) {
+                    float currAccuracy = currLocation.getAccuracy();
+                    if (currAccuracy < bestAccuracy) {
+                        bestAccuracy = currAccuracy;
+                        location = currLocation;
+                    }
+                }
+            }
             if (location != null) {
                 myLocationCallback.callOnSuccess(new LatLng(location));
             } else {
-                myLocationCallback.callOnFail(new LocationNotDeterminedException()); //null last location found due to empty location cache
+                myLocationCallback.callOnFail(new EmptyLocationCacheException()); //null last location found due to empty location cache
             }
         } else {
             throw new LocationPermissionNotGrantedException();
