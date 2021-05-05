@@ -1,6 +1,5 @@
 package com.example.demo;
 
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -22,7 +21,6 @@ import androidx.core.app.NotificationCompat;
 
 
 public class UpdateService extends Service {
-    private Notification notification;
     private static LocationProvider locationProvider;
     private PendingIntent pendingIntent;
     private static LatLng location;
@@ -69,7 +67,7 @@ public class UpdateService extends Service {
         return null;
     }
 
-    private Notification createNotification(String title, LatLng coordinates) {
+    private void setNotificationText(String title, String contentText) {
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -80,12 +78,6 @@ public class UpdateService extends Service {
             mNotificationManager.createNotificationChannel(channel);
         }
 
-        String contentText;
-        if (showSpeed) {
-            contentText = "Скорость: " + coordinates.getSpeed() + " м/с";
-        } else {
-            contentText = coordinates.toString();
-        }
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), "MY_CHANNEL_ID")
                 .setSmallIcon(R.mipmap.ic_launcher) // notification icon
                 .setContentTitle(title) // title for notification
@@ -95,16 +87,25 @@ public class UpdateService extends Service {
         Intent intent = new Intent(getApplicationContext(), activityClassName);
         PendingIntent pi = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder.setContentIntent(pi);
-        return mBuilder.build();
+        startForeground(1, mBuilder.build());
+    }
+
+    private void setLocationNotification(LatLng coordinates) {
+        String contentText;
+        if (showSpeed) {
+            contentText = "Скорость: " + coordinates.getSpeed() + " м/с";
+        } else {
+            contentText = coordinates.toString();
+        }
+        setNotificationText("Выполняется обновление координат...", contentText);
     }
 
     private void updateCoordinatesTask() {
         ILocationCallback myCallback = new ILocationCallback() {
             @Override
             public void callOnSuccess(LatLng lastUpdatedLocation) {
-                notification = createNotification("Выполняется обновление координат...", lastUpdatedLocation);
+                setLocationNotification(lastUpdatedLocation);
                 UpdateService.location = lastUpdatedLocation;
-                startForeground(1, notification);
                 try {
                     pendingIntent.send(UPDATE_SUCCEEDED);
                 } catch (PendingIntent.CanceledException e) {
@@ -114,7 +115,8 @@ public class UpdateService extends Service {
 
             @Override
             public void callOnFail(Exception e) {
-                stopForeground(true);
+                setNotificationText("Ошибка!", e.getMessage());
+                stopForeground(false);
                 try {
                     pendingIntent.send(UPDATE_FAILED);
                 } catch (PendingIntent.CanceledException canceledException) {
