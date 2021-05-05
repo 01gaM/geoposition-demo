@@ -17,6 +17,7 @@ import com.example.geopositionmodule.AccuracyPriority;
 import com.example.geopositionmodule.ILocationCallback;
 import com.example.geopositionmodule.LatLng;
 import com.example.geopositionmodule.LocationProvider;
+import com.example.geopositionmodule.exceptions.AirplaneModeOnException;
 import com.example.geopositionmodule.exceptions.LocationProviderDisabledException;
 import com.example.geopositionmodule.exceptions.LocationPermissionNotGrantedException;
 
@@ -75,7 +76,7 @@ public class CurrCoordinatesActivity extends BaseCoordinatesActivity {
                     } else {
                         handleException(e);
                     }
-                } catch (LocationProviderDisabledException e) {
+                } catch (LocationProviderDisabledException | AirplaneModeOnException e) {
                     handleException(e);
                 }
             }
@@ -108,9 +109,6 @@ public class CurrCoordinatesActivity extends BaseCoordinatesActivity {
                 break;
             case R.id.menu_priority_low_power:
                 locationProvider.setAccuracyPriority(AccuracyPriority.PRIORITY_LOW_POWER);
-                break;
-            case R.id.menu_priority_no_power:
-                locationProvider.setAccuracyPriority(AccuracyPriority.PRIORITY_NO_POWER);
                 break;
             default:
                 locationProvider.setAccuracyPriority(AccuracyPriority.PRIORITY_HIGH_ACCURACY);

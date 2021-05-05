@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,6 +40,8 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
     private Intent intent;
     private AccuracyPriority accuracyPriority;
     private Menu menu;
+    private ProgressBar progressBar;
+    private boolean firstRequest = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +53,7 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
         waitingMessage = findViewById(R.id.text_waiting_message);
         editDelay = findViewById(R.id.edit_text_interval);
         displayMapButton = findViewById(R.id.button_display_map);
+        progressBar = findViewById(R.id.progress_bar_update);
         editDelay.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -68,6 +72,8 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
         Button.OnClickListener listener = new Button.OnClickListener() {
             @Override
             public void onClick(View view) {
+                waitingMessage.setVisibility(View.VISIBLE);
+                progressBar.setVisibility(View.VISIBLE);
                 editDelay.setEnabled(false);
                 requestUpdatesButton.setEnabled(false);
                 stopUpdatesButton.setEnabled(true);
@@ -83,7 +89,7 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
                         .putExtra("accuracyPriority", accuracyPriority);
                 intent.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
                 startService(intent);
-                startTimer(minutes);
+                //startTimer(minutes);
             }
         };
         requestUpdatesButton.setOnClickListener(listener);
@@ -129,9 +135,6 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
             case R.id.menu_priority_low_power:
                 accuracyPriority = AccuracyPriority.PRIORITY_LOW_POWER;
                 break;
-            case R.id.menu_priority_no_power:
-                accuracyPriority = AccuracyPriority.PRIORITY_NO_POWER;
-                break;
             default:
                 accuracyPriority = AccuracyPriority.PRIORITY_HIGH_ACCURACY;
         }
@@ -148,6 +151,12 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
         Exception e = UpdateService.getCurrException();
         switch (resultCode) {
             case (UpdateService.UPDATE_SUCCEEDED):
+                if (firstRequest){
+                    double minutes = Double.parseDouble(editDelay.getText().toString());
+                    startTimer(minutes);
+                    progressBar.setVisibility(View.INVISIBLE);
+                    firstRequest = false;
+                }
                 LatLng lastUpdatedLocation = UpdateService.getLocation();
                 Toast toast = Toast.makeText(UpdateCoordinatesActivity.this, lastUpdatedLocation.toString(), Toast.LENGTH_LONG);
                 toast.setGravity(Gravity.TOP, 0, 400);
@@ -182,6 +191,8 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
         tvTimer.setVisibility(View.INVISIBLE);
         displayMapButton.setEnabled(false);
         menu.setGroupEnabled(R.id.menu_group, true);
+        progressBar.setVisibility(View.INVISIBLE);
+        firstRequest = true;
     }
 
     @Override

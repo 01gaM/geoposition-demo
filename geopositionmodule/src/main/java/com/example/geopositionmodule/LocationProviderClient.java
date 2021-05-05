@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.provider.Settings;
 
 import com.example.geopositionmodule.exceptions.IntervalValueOutOfRangeException;
 import com.example.geopositionmodule.exceptions.LocationProviderDisabledException;
@@ -42,10 +43,15 @@ public abstract class LocationProviderClient implements ILocationProvider {
     protected void checkLocationSettingsEnabled(Context context) throws LocationProviderDisabledException {
         LocationManager locationManager = (LocationManager) context.getSystemService(LOCATION_SERVICE);
         boolean gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        boolean networkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        boolean networkEnabled = isAirplaneModeOff(context) && locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
         if (!gpsEnabled && !networkEnabled) {
             throw new LocationProviderDisabledException();
         }
+    }
+
+    protected boolean isAirplaneModeOff(Context context) {
+        int airplaneSetting = Settings.System.getInt(context.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, 0);
+        return airplaneSetting == 0;
     }
 
 //    /**

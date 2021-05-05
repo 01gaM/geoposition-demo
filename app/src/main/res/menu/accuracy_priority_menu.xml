@@ -12,8 +12,5 @@
         <item
             android:id="@+id/menu_priority_low_power"
             android:title="Низкий расход батареи"/>
-        <item
-            android:id="@+id/menu_priority_no_power"
-            android:title="Без расхода батареи"/>
     </group>
 </menu>

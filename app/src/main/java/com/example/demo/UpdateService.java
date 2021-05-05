@@ -12,6 +12,7 @@ import com.example.geopositionmodule.AccuracyPriority;
 import com.example.geopositionmodule.ILocationCallback;
 import com.example.geopositionmodule.LatLng;
 import com.example.geopositionmodule.LocationProvider;
+import com.example.geopositionmodule.exceptions.AirplaneModeOnException;
 import com.example.geopositionmodule.exceptions.IntervalValueOutOfRangeException;
 import com.example.geopositionmodule.exceptions.LocationProviderDisabledException;
 import com.example.geopositionmodule.exceptions.LocationPermissionNotGrantedException;
@@ -115,6 +116,7 @@ public class UpdateService extends Service {
 
             @Override
             public void callOnFail(Exception e) {
+                currException = e;
                 setNotificationText("Ошибка!", e.getMessage());
                 stopForeground(false);
                 try {
@@ -128,16 +130,16 @@ public class UpdateService extends Service {
         try {
             locationProvider.requestLocationUpdates(interval, myCallback);
         } catch (LocationPermissionNotGrantedException e) {
-            stopForeground(true);
             currException = e;
+            stopForeground(true);
             try {
                 pendingIntent.send(LOCATION_PERMISSION_NOT_GRANTED);
             } catch (PendingIntent.CanceledException canceledException) {
                 canceledException.printStackTrace();
             }
-        } catch (LocationProviderDisabledException | IntervalValueOutOfRangeException e) {
-            stopForeground(true);
+        } catch (LocationProviderDisabledException | IntervalValueOutOfRangeException | AirplaneModeOnException e) {
             currException = e;
+            stopForeground(true);
             try {
                 pendingIntent.send(UPDATE_FAILED);
             } catch (PendingIntent.CanceledException canceledException) {

@@ -2,6 +2,7 @@ package com.example.geopositionmodule;
 
 import android.content.Context;
 
+import com.example.geopositionmodule.exceptions.AirplaneModeOnException;
 import com.example.geopositionmodule.exceptions.EmptyLocationCacheException;
 import com.example.geopositionmodule.exceptions.GooglePlayServicesNotAvailableException;
 import com.example.geopositionmodule.exceptions.IntervalValueOutOfRangeException;
@@ -62,12 +63,12 @@ public class LocationProvider implements ILocationProvider {
     }
 
     @Override
-    public void requestCurrentLocation(ILocationCallback callback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException {
+    public void requestCurrentLocation(ILocationCallback callback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException, AirplaneModeOnException {
         locationProviderClient.requestCurrentLocation(callback);
     }
 
     @Override
-    public void requestLocationUpdates(double intervalMin, ILocationCallback callback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException, IntervalValueOutOfRangeException {
+    public void requestLocationUpdates(double intervalMin, ILocationCallback callback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException, IntervalValueOutOfRangeException, AirplaneModeOnException {
         locationProviderClient.requestLocationUpdates(intervalMin, callback);
     }
 

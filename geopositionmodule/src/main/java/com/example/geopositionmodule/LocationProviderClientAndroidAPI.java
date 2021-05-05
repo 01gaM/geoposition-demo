@@ -10,6 +10,7 @@ import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
 
+import com.example.geopositionmodule.exceptions.AirplaneModeOnException;
 import com.example.geopositionmodule.exceptions.EmptyLocationCacheException;
 import com.example.geopositionmodule.exceptions.IntervalValueOutOfRangeException;
 import com.example.geopositionmodule.exceptions.LocationNotDeterminedException;
@@ -56,15 +57,13 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
         return criteria;
     }
 
-    private String getAvailableProviderName() throws LocationProviderDisabledException {
-        String providerName;
-        if (accuracyPriority == AccuracyPriority.PRIORITY_NO_POWER && locationManager.isProviderEnabled(LocationManager.PASSIVE_PROVIDER)) {
-            providerName = LocationManager.PASSIVE_PROVIDER;
-        } else {
-            Criteria criteria = getCriteria();
-            providerName = locationManager.getBestProvider(criteria, true);
-        }
+    private String getAvailableProviderName() throws LocationProviderDisabledException, AirplaneModeOnException {
+        Criteria criteria = getCriteria();
+        String providerName = locationManager.getBestProvider(criteria, true);
         // If no suitable enabled provider is found, null is returned
+        if (providerName.equals(LocationManager.NETWORK_PROVIDER) && !isAirplaneModeOff(context)){
+            throw new AirplaneModeOnException();
+        }
         if (providerName != null) {
             return providerName;
         }
@@ -105,7 +104,7 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
     }
 
     @Override
-    public void requestCurrentLocation(ILocationCallback callback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException {
+    public void requestCurrentLocation(ILocationCallback callback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException, AirplaneModeOnException {
         checkLocationSettingsEnabled(context);
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                 ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -128,8 +127,8 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
                 }
             };
             locationManager.requestLocationUpdates(providerName,
-                    TimeUnit.MINUTES.toMillis(100),
-                    5,             // 5 meters
+                    TimeUnit.MINUTES.toMillis(0),
+                    0,
                     updateLocationListener);
         } else {
             throw new LocationPermissionNotGrantedException();
@@ -137,7 +136,7 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
     }
 
     @Override
-    public void requestLocationUpdates(double intervalMin, ILocationCallback callback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException, IntervalValueOutOfRangeException {
+    public void requestLocationUpdates(double intervalMin, ILocationCallback callback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException, IntervalValueOutOfRangeException, AirplaneModeOnException {
         checkLocationSettingsEnabled(context);
         checkUpdateIntervalValue(intervalMin);
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
