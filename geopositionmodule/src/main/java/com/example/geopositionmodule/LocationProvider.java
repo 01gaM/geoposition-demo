@@ -32,14 +32,15 @@ public class LocationProvider implements ILocationProvider {
     }
 
     private LocationProviderClient createLocationProviderClient() {
-//        try {
-//            checkGooglePlayServicesAvailable(context);
-//        } catch (GooglePlayServicesNotAvailableException e) {
-//            e.printStackTrace();
-//            return new LocationProviderClientAndroidAPI(context);
-//        }
-//        return new LocationProviderClientGoogleAPI(context);
-        return new LocationProviderClientAndroidAPI(context);
+        try {
+            checkGooglePlayServicesAvailable(context);
+        } catch (GooglePlayServicesNotAvailableException e) {
+            e.printStackTrace();
+            return new LocationProviderClientAndroidAPI(context);
+        }
+        return new LocationProviderClientGoogleAPI(context);
+
+        //return new LocationProviderClientAndroidAPI(context);
     }
 
     /**

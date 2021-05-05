@@ -89,7 +89,7 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
     public void requestCurrentLocation(ILocationCallback myLocationCallback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException {
         checkLocationSettingsEnabled(context);
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-                ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             this.fusedLocationProviderClient.getCurrentLocation(accuracyPriority.getCode(), null)
                     .addOnSuccessListener(new OnSuccessListener<Location>() {
                         @Override
@@ -106,12 +106,6 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
                             }
                         }
                     });
-//                    .addOnFailureListener(new OnFailureListener() {
-//                        @Override
-//                        public void onFailure(@NonNull Exception e) {
-//                            myLocationCallback.callOnFail(e);
-//                        }
-//                    });
         } else {
             throw new LocationPermissionNotGrantedException();
         }

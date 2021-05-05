@@ -19,6 +19,8 @@ public abstract class BaseCoordinatesActivity extends AppCompatActivity implemen
                     || grantResults[0] == PackageManager.PERMISSION_DENIED) {
                 //Permission Denied!
                 handleException(new LocationPermissionNotGrantedException());
+            } else {
+                resetElementsState();
             }
         }
     }

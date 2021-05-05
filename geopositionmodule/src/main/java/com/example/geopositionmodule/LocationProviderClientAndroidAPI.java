@@ -7,7 +7,6 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.location.LocationProvider;
 import android.os.Bundle;
 
 import com.example.geopositionmodule.exceptions.AirplaneModeOnException;
@@ -16,6 +15,7 @@ import com.example.geopositionmodule.exceptions.IntervalValueOutOfRangeException
 import com.example.geopositionmodule.exceptions.LocationNotDeterminedException;
 import com.example.geopositionmodule.exceptions.LocationProviderDisabledException;
 import com.example.geopositionmodule.exceptions.LocationPermissionNotGrantedException;
+import com.example.geopositionmodule.exceptions.NetworkUpdateIntervalOutOfRangeException;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -29,6 +29,12 @@ import androidx.core.app.ActivityCompat;
 public class LocationProviderClientAndroidAPI extends LocationProviderClient {
     private final LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
     private LocationListener updateLocationListener;
+    /**
+     * The minimum location update interval in minutes (equals 0.33 minutes ~ 20 seconds) used instead of {@link #MINIMUM_UPDATE_INTERVAL_NETWORK}
+     * when {@link #locationManager} requests {@link #requestLocationUpdates(double, ILocationCallback)} with {@link LocationManager#NETWORK_PROVIDER}
+     * Used for {@link #requestLocationUpdates(double, ILocationCallback)} method
+     */
+    public static final double MINIMUM_UPDATE_INTERVAL_NETWORK = 0.33;
 
     public LocationProviderClientAndroidAPI(Context context) {
         super(context);
@@ -43,11 +49,9 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
         switch (accuracyPriority) {
             case PRIORITY_LOW_POWER:
                 criteria.setPowerRequirement(Criteria.POWER_LOW);
-                criteria.setAccuracy(Criteria.NO_REQUIREMENT);
                 break;
             case PRIORITY_BALANCED_POWER_ACCURACY:
                 criteria.setPowerRequirement(Criteria.POWER_MEDIUM);
-                criteria.setAccuracy(Criteria.NO_REQUIREMENT);
                 break;
             case PRIORITY_HIGH_ACCURACY:
                 criteria.setPowerRequirement(Criteria.POWER_HIGH);
@@ -61,8 +65,9 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
         Criteria criteria = getCriteria();
         String providerName = locationManager.getBestProvider(criteria, true);
         // If no suitable enabled provider is found, null is returned
-        if (providerName.equals(LocationManager.NETWORK_PROVIDER) && !isAirplaneModeOff(context)){
-            throw new AirplaneModeOnException();
+        List<String> list = locationManager.getAllProviders();
+        if (providerName.equals(LocationManager.NETWORK_PROVIDER) && !isAirplaneModeOff(context)) {
+            throw new AirplaneModeOnException(); //TODO: remove this exception and set provider to GPS?
         }
         if (providerName != null) {
             return providerName;
@@ -135,6 +140,20 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
         }
     }
 
+    /**
+     * This method checks whether the input interval value in minutes is out of range or not.
+     *
+     * @param intervalMin An input value for {@link #requestLocationUpdates(double, ILocationCallback)} method.
+     * @throws IntervalValueOutOfRangeException Exception is thrown when input value is
+     *                                          less than {@link com.example.geopositionmodule.LocationProvider#MINIMUM_UPDATE_INTERVAL} or
+     *                                          more than {@link com.example.geopositionmodule.LocationProvider#MINIMUM_UPDATE_INTERVAL}.
+     */
+    private void checkNetworkUpdateIntervalValue(double intervalMin, String providerName) throws NetworkUpdateIntervalOutOfRangeException {
+        if (providerName.equals(LocationManager.NETWORK_PROVIDER) && intervalMin < MINIMUM_UPDATE_INTERVAL_NETWORK) {
+            throw new NetworkUpdateIntervalOutOfRangeException();
+        }
+    }
+
     @Override
     public void requestLocationUpdates(double intervalMin, ILocationCallback callback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException, IntervalValueOutOfRangeException, AirplaneModeOnException {
         checkLocationSettingsEnabled(context);
@@ -143,6 +162,7 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
                 ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             long intervalMillis = (long) (intervalMin * 60000);
             String providerName = getAvailableProviderName();
+            checkNetworkUpdateIntervalValue(intervalMin, providerName);
             updateLocationListener = new LocationListener() {
                 @Override
                 public void onLocationChanged(@NonNull Location location) {
