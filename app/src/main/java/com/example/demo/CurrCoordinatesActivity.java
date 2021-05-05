@@ -4,17 +4,23 @@ import android.Manifest;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.geopositionmodule.AccuracyPriority;
 import com.example.geopositionmodule.ILocationCallback;
 import com.example.geopositionmodule.LatLng;
 import com.example.geopositionmodule.LocationProvider;
 import com.example.geopositionmodule.exceptions.LocationProviderDisabledException;
 import com.example.geopositionmodule.exceptions.LocationPermissionNotGrantedException;
+
+import androidx.annotation.NonNull;
 
 public class CurrCoordinatesActivity extends BaseCoordinatesActivity {
     private Button showToastButton;
@@ -80,6 +86,33 @@ public class CurrCoordinatesActivity extends BaseCoordinatesActivity {
                 dialog.show();
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.accuracy_priority_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        item.setChecked(true);
+        switch (item.getItemId()) {
+            case R.id.menu_priority_high_accuracy:
+                locationProvider.setAccuracyPriority(AccuracyPriority.PRIORITY_HIGH_ACCURACY);
+                break;
+            case R.id.menu_priority_balanced_power_accuracy:
+                locationProvider.setAccuracyPriority(AccuracyPriority.PRIORITY_BALANCED_POWER_ACCURACY);
+                break;
+            case R.id.menu_priority_low_power:
+                locationProvider.setAccuracyPriority(AccuracyPriority.PRIORITY_LOW_POWER);
+                break;
+            case R.id.menu_priority_no_power:
+                locationProvider.setAccuracyPriority(AccuracyPriority.PRIORITY_NO_POWER);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

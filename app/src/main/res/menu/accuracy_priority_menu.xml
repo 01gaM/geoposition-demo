@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:id="@+id/group"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/menu_priority_high_accuracy"
+            android:title="Наивысшая точность"
+            android:checked="true"/>
+        <item
+            android:id="@+id/menu_priority_balanced_power_accuracy"
+            android:title="Средний расход батареи"/>
+        <item
+            android:id="@+id/menu_priority_low_power"
+            android:title="Низкий расход батареи"/>
+        <item
+            android:id="@+id/menu_priority_no_power"
+            android:title="Без расхода батареи"/>
+    </group>
+</menu>
