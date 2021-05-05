@@ -9,16 +9,22 @@ import android.os.CountDownTimer;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.geopositionmodule.AccuracyPriority;
 import com.example.geopositionmodule.LatLng;
 import com.example.geopositionmodule.LocationProvider;
 
 import java.util.concurrent.TimeUnit;
+
+import androidx.annotation.NonNull;
 
 public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
     private Button requestUpdatesButton;
@@ -31,6 +37,8 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
     private LatLng currCoordinates = null;
     private MapDialog mapDialog;
     private Intent intent;
+    private AccuracyPriority accuracyPriority;
+    private Menu menu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +71,7 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
                 editDelay.setEnabled(false);
                 requestUpdatesButton.setEnabled(false);
                 stopUpdatesButton.setEnabled(true);
+                menu.setGroupEnabled(R.id.menu_group, false);
                 if (cTimer != null)
                     cTimer.cancel();
                 double minutes = Double.parseDouble(editDelay.getText().toString());
@@ -70,7 +79,8 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
                 PendingIntent pendingIntent = createPendingResult(TASK_CODE, new Intent(), 0);
                 intent = new Intent(getApplicationContext(), UpdateService.class)
                         .putExtra("pendingIntent", pendingIntent)
-                        .putExtra("intervalMin", minutes);
+                        .putExtra("intervalMin", minutes)
+                        .putExtra("accuracyPriority", accuracyPriority);
                 intent.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
                 startService(intent);
                 startTimer(minutes);
@@ -99,6 +109,37 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
                 });
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.accuracy_priority_menu, menu);
+        this.menu = menu;
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        item.setChecked(true);
+        switch (item.getItemId()) {
+            case R.id.menu_priority_balanced_power_accuracy:
+                accuracyPriority = AccuracyPriority.PRIORITY_BALANCED_POWER_ACCURACY;
+                break;
+            case R.id.menu_priority_low_power:
+                accuracyPriority = AccuracyPriority.PRIORITY_LOW_POWER;
+                break;
+            case R.id.menu_priority_no_power:
+                accuracyPriority = AccuracyPriority.PRIORITY_NO_POWER;
+                break;
+            default:
+                accuracyPriority = AccuracyPriority.PRIORITY_HIGH_ACCURACY;
+        }
+        LocationProvider locationProvider = UpdateService.getLocationProvider();
+        if (locationProvider != null) {
+            locationProvider.setAccuracyPriority(accuracyPriority);
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -140,6 +181,7 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
         waitingMessage.setVisibility(View.INVISIBLE);
         tvTimer.setVisibility(View.INVISIBLE);
         displayMapButton.setEnabled(false);
+        menu.setGroupEnabled(R.id.menu_group, true);
     }
 
     @Override

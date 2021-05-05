@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 
+import com.example.geopositionmodule.AccuracyPriority;
 import com.example.geopositionmodule.ILocationCallback;
 import com.example.geopositionmodule.LatLng;
 import com.example.geopositionmodule.LocationProvider;
@@ -48,6 +49,11 @@ public class UpdateService extends Service {
         pendingIntent = intent.getParcelableExtra("pendingIntent");
         interval = intent.getDoubleExtra("intervalMin", 1);
         showSpeed = intent.getBooleanExtra("showSpeed", false);
+        AccuracyPriority accuracyPriority = (AccuracyPriority) intent.getSerializableExtra("accuracyPriority");
+        if (accuracyPriority == null){
+            accuracyPriority = AccuracyPriority.PRIORITY_HIGH_ACCURACY;
+        }
+        locationProvider.setAccuracyPriority(accuracyPriority);
         if (showSpeed) {
             activityClassName = SpeedActivity.class;
         } else {

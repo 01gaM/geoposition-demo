@@ -30,6 +30,7 @@ public class CurrCoordinatesActivity extends BaseCoordinatesActivity {
     public static final int REQUEST_LOCATION_PERMISSION_CODE = 0;
     private Button displayMapButton;
     private LatLng currCoordinates = null;
+    private Menu menu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +48,8 @@ public class CurrCoordinatesActivity extends BaseCoordinatesActivity {
                 showToastButton.setEnabled(false);
                 progressBar.setVisibility(View.VISIBLE);
                 progressMessage.setVisibility(View.VISIBLE);
+                menu.setGroupEnabled(R.id.menu_group, false);
+
                 try {
                     ILocationCallback myCallback = new ILocationCallback() {
                         @Override
@@ -92,6 +95,7 @@ public class CurrCoordinatesActivity extends BaseCoordinatesActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.accuracy_priority_menu, menu);
+        this.menu = menu;
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -99,9 +103,6 @@ public class CurrCoordinatesActivity extends BaseCoordinatesActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         item.setChecked(true);
         switch (item.getItemId()) {
-            case R.id.menu_priority_high_accuracy:
-                locationProvider.setAccuracyPriority(AccuracyPriority.PRIORITY_HIGH_ACCURACY);
-                break;
             case R.id.menu_priority_balanced_power_accuracy:
                 locationProvider.setAccuracyPriority(AccuracyPriority.PRIORITY_BALANCED_POWER_ACCURACY);
                 break;
@@ -110,6 +111,9 @@ public class CurrCoordinatesActivity extends BaseCoordinatesActivity {
                 break;
             case R.id.menu_priority_no_power:
                 locationProvider.setAccuracyPriority(AccuracyPriority.PRIORITY_NO_POWER);
+                break;
+            default:
+                locationProvider.setAccuracyPriority(AccuracyPriority.PRIORITY_HIGH_ACCURACY);
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -120,5 +124,6 @@ public class CurrCoordinatesActivity extends BaseCoordinatesActivity {
         progressBar.setVisibility(View.INVISIBLE);
         progressMessage.setVisibility(View.INVISIBLE);
         showToastButton.setEnabled(true);
+        menu.setGroupEnabled(R.id.menu_group, true);
     }
 }
