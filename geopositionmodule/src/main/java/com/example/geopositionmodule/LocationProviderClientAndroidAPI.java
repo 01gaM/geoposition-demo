@@ -9,7 +9,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.CountDownTimer;
 
 import com.example.geopositionmodule.exceptions.AirplaneModeOnException;
 import com.example.geopositionmodule.exceptions.DeviceLocationDisabledException;
@@ -20,7 +20,6 @@ import com.example.geopositionmodule.exceptions.LocationPermissionNotGrantedExce
 import com.example.geopositionmodule.exceptions.NetworkUpdateIntervalOutOfRangeException;
 
 import java.util.List;
-import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
@@ -38,9 +37,33 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
      * Used for {@link #requestLocationUpdates(double, ILocationCallback)} method
      */
     public static final double MINIMUM_UPDATE_INTERVAL_NETWORK = 0.33;
+    private final long REQUEST_TIMEOUT_MILLIS = TimeUnit.MINUTES.toMillis(1);
+    private CountDownTimer updateLocationTimer = null;
 
     public LocationProviderClientAndroidAPI(Context context) {
         super(context);
+    }
+
+    private CountDownTimer createTimeoutTimer(String providerName, ILocationCallback callback) {
+        return new CountDownTimer(REQUEST_TIMEOUT_MILLIS, TimeUnit.SECONDS.toMillis(5)) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                if (providerName.equals(LocationManager.NETWORK_PROVIDER)) {
+                    try {
+                        checkAirplaneModeOff();
+                    } catch (AirplaneModeOnException e) {
+                        callback.callOnFail(e);
+                        stopLocationUpdates();
+                    }
+                }
+            }
+
+            @Override
+            public void onFinish() {
+                callback.callOnFail(new LocationProviderDisabledException());
+                stopLocationUpdates();
+            }
+        };
     }
 
     public LocationListener getUpdateLocationListener() {
@@ -69,7 +92,6 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
         String providerName = locationManager.getBestProvider(criteria, true);
         // If no suitable enabled provider is found, null is returned
         List<String> list = locationManager.getAllProviders();
-        //locationManager.getProvider(providerName).requiresNetwork() TODO: try tris way
         if (providerName.equals(LocationManager.NETWORK_PROVIDER)) {
             checkAirplaneModeOff();
         }
@@ -112,33 +134,20 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
         }
     }
 
+    //TODO: add cancellation button
     @Override
     public void requestCurrentLocation(ILocationCallback callback) throws LocationPermissionNotGrantedException, DeviceLocationDisabledException, AirplaneModeOnException, LocationProviderDisabledException {
         checkLocationSettingsEnabled();
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                 ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             String providerName = getAvailableProviderName();
-            updateLocationListener = new LocationListener() {
-                @Override
-                public void onLocationChanged(@NonNull Location location) {
-                    callback.callOnSuccess(new LatLng(location));
-                    stopLocationUpdates();
-                }
-
-                @Override
-                public void onProviderDisabled(@NonNull String provider) {
-                    handleRequestFailure(callback);
-                    stopLocationUpdates();
-                }
-
-                @Override
-                public void onStatusChanged(String provider, int status, Bundle extras) {
-                }
-            };
+            updateLocationTimer = createTimeoutTimer(providerName, callback);
+            updateLocationListener = getLocationListener(callback, true);
             locationManager.requestLocationUpdates(providerName,
                     TimeUnit.MINUTES.toMillis(0),
                     0,
                     updateLocationListener);
+            updateLocationTimer.start();
         } else {
             throw new LocationPermissionNotGrantedException();
         }
@@ -167,36 +176,57 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
             long intervalMillis = (long) (intervalMin * 60000);
             String providerName = getAvailableProviderName();
             checkNetworkUpdateIntervalValue(intervalMin, providerName);
-            updateLocationListener = new LocationListener() {
-                @Override
-                public void onLocationChanged(@NonNull Location location) {
-                    callback.callOnSuccess(new LatLng(location));
-                }
-
-                @Override
-                public void onProviderDisabled(@NonNull String provider) {
-                    handleRequestFailure(callback);
-                    stopLocationUpdates();
-                }
-
-                @Override
-                public void onStatusChanged(String provider, int status, Bundle extras) {
-                }
-            };
+            updateLocationTimer = createTimeoutTimer(providerName, callback);
+            updateLocationListener = getLocationListener(callback, false);
             locationManager.requestLocationUpdates(providerName,
                     intervalMillis,
                     0,
                     updateLocationListener);
+            updateLocationTimer.start();
         } else {
             throw new LocationPermissionNotGrantedException();
         }
     }
 
+    private LocationListener getLocationListener(ILocationCallback callback, boolean isSingleUpdate) {
+        return new LocationListener() {
+            @Override
+            public void onLocationChanged(@NonNull Location location) {
+                updateLocationTimer.cancel();
+                callback.callOnSuccess(new LatLng(location));
+                if (isSingleUpdate) {
+                    stopLocationUpdates();
+                } else {
+                    updateLocationTimer.start();
+                }
+            }
+
+            @Override
+            public void onProviderDisabled(@NonNull String provider) {
+                handleRequestFailure(callback);
+                stopLocationUpdates();
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+            }
+        };
+    }
+
     @Override
     public void stopLocationUpdates() {
+        if (updateLocationTimer != null) {
+            updateLocationTimer.cancel();
+        }
         if (updateLocationListener != null) {
             locationManager.removeUpdates(updateLocationListener);
             updateLocationListener = null;
         }
     }
+
+//    //TODO
+//    @Override
+//    public void cancelCurrentLocationRequest(){
+//        stopLocationUpdates();
+//    }
 }

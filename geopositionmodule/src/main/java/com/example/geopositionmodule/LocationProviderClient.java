@@ -56,27 +56,6 @@ public abstract class LocationProviderClient implements ILocationProvider {
         }
     }
 
-
-//    protected void checkLocationSettingsEnabled(Context context) throws DeviceLocationDisabledException {
-//        LocationManager locationManager = (LocationManager) context.getSystemService(LOCATION_SERVICE);
-//        if (!LocationManagerCompat.isLocationEnabled(locationManager)) {
-//            throw new DeviceLocationDisabledException();
-//        }
-//    }
-
-//    /**
-//     * This method checks whether the location access permission is granted for the app or not.
-//     *
-//     * @throws LocationPermissionNotGrantedException Exception is thrown when both {@link Manifest.permission#ACCESS_FINE_LOCATION}
-//     *                                               and {@link Manifest.permission#ACCESS_COARSE_LOCATION} and not granted.
-//     */
-//    protected void checkPermissionGranted(Context context) throws LocationPermissionNotGrantedException {
-//        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-//                && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-//            throw new LocationPermissionNotGrantedException();
-//    }
-
-
     /**
      * This method checks whether the input interval value in minutes is out of range or not.
      *
@@ -91,7 +70,7 @@ public abstract class LocationProviderClient implements ILocationProvider {
         }
     }
 
-    protected void handleRequestFailure(ILocationCallback callback){
+    protected void handleRequestFailure(ILocationCallback callback) {
         try {
             checkLocationSettingsEnabled();
             checkAirplaneModeOff();
