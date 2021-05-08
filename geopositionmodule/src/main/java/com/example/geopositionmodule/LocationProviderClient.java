@@ -50,8 +50,9 @@ public abstract class LocationProviderClient implements ILocationProvider {
     }
 
     protected void checkAirplaneModeOff() throws AirplaneModeOnException {
-        int airplaneSetting = Settings.System.getInt(context.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, 0);
-        if (!(airplaneSetting == 0)) {
+        final int IS_ENABLED = 0;
+        int airplaneSetting = Settings.Global.getInt(context.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, IS_ENABLED);
+        if (!(airplaneSetting == IS_ENABLED)) {
             throw new AirplaneModeOnException();
         }
     }

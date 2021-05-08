@@ -2,7 +2,10 @@
 package com.example.geopositionmodule;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
@@ -39,23 +42,16 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
     public static final double MINIMUM_UPDATE_INTERVAL_NETWORK = 0.33;
     private final long REQUEST_TIMEOUT_MILLIS = TimeUnit.MINUTES.toMillis(1);
     private CountDownTimer updateLocationTimer = null;
+    private BroadcastReceiver airplaneModeUpdatesReceiver = null;
 
     public LocationProviderClientAndroidAPI(Context context) {
         super(context);
     }
 
-    private CountDownTimer createTimeoutTimer(String providerName, ILocationCallback callback) {
+    private CountDownTimer createTimeoutTimer(ILocationCallback callback) {
         return new CountDownTimer(REQUEST_TIMEOUT_MILLIS, TimeUnit.SECONDS.toMillis(5)) {
             @Override
             public void onTick(long millisUntilFinished) {
-                if (providerName.equals(LocationManager.NETWORK_PROVIDER)) {
-                    try {
-                        checkAirplaneModeOff();
-                    } catch (AirplaneModeOnException e) {
-                        callback.callOnFail(e);
-                        stopLocationUpdates();
-                    }
-                }
             }
 
             @Override
@@ -90,11 +86,10 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
     private String getAvailableProviderName() throws LocationProviderDisabledException, AirplaneModeOnException {
         Criteria criteria = getCriteria();
         String providerName = locationManager.getBestProvider(criteria, true);
-        // If no suitable enabled provider is found, null is returned
-        List<String> list = locationManager.getAllProviders();
         if (providerName.equals(LocationManager.NETWORK_PROVIDER)) {
             checkAirplaneModeOff();
         }
+        // If no suitable enabled provider is found, null is returned
         if (providerName != null) {
             return providerName;
         }
@@ -141,7 +136,10 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                 ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             String providerName = getAvailableProviderName();
-            updateLocationTimer = createTimeoutTimer(providerName, callback);
+            if (providerName.equals(LocationManager.NETWORK_PROVIDER)) {
+                checkAirplaneModeStatus(callback);
+            }
+            updateLocationTimer = createTimeoutTimer(callback);
             updateLocationListener = getLocationListener(callback, true);
             locationManager.requestLocationUpdates(providerName,
                     TimeUnit.MINUTES.toMillis(0),
@@ -161,10 +159,28 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
      *                                          less than {@link com.example.geopositionmodule.LocationProvider#MINIMUM_UPDATE_INTERVAL} or
      *                                          more than {@link com.example.geopositionmodule.LocationProvider#MINIMUM_UPDATE_INTERVAL}.
      */
-    private void checkNetworkUpdateIntervalValue(double intervalMin, String providerName) throws NetworkUpdateIntervalOutOfRangeException {
-        if (providerName.equals(LocationManager.NETWORK_PROVIDER) && intervalMin < MINIMUM_UPDATE_INTERVAL_NETWORK) {
+    private void checkNetworkUpdateIntervalValue(double intervalMin) throws NetworkUpdateIntervalOutOfRangeException {
+        if (intervalMin < MINIMUM_UPDATE_INTERVAL_NETWORK) {
             throw new NetworkUpdateIntervalOutOfRangeException();
         }
+    }
+
+    private void checkAirplaneModeStatus(ILocationCallback callback) {
+        IntentFilter intentFilter = new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED);
+        BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                try {
+                    checkAirplaneModeOff();
+                } catch (AirplaneModeOnException e) {
+                    //Airplane mode is on
+                    callback.callOnFail(e);
+                    stopLocationUpdates();
+                }
+            }
+        };
+        context.registerReceiver(receiver, intentFilter);
+        airplaneModeUpdatesReceiver = receiver;
     }
 
     @Override
@@ -175,8 +191,11 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
                 ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             long intervalMillis = (long) (intervalMin * 60000);
             String providerName = getAvailableProviderName();
-            checkNetworkUpdateIntervalValue(intervalMin, providerName);
-            updateLocationTimer = createTimeoutTimer(providerName, callback);
+            if (providerName.equals(LocationManager.NETWORK_PROVIDER)) {
+                checkNetworkUpdateIntervalValue(intervalMin);
+                checkAirplaneModeStatus(callback);
+            }
+            updateLocationTimer = createTimeoutTimer(callback);
             updateLocationListener = getLocationListener(callback, false);
             locationManager.requestLocationUpdates(providerName,
                     intervalMillis,
@@ -215,6 +234,10 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
 
     @Override
     public void stopLocationUpdates() {
+        if (airplaneModeUpdatesReceiver != null) {
+            context.unregisterReceiver(airplaneModeUpdatesReceiver);
+            airplaneModeUpdatesReceiver = null;
+        }
         if (updateLocationTimer != null) {
             updateLocationTimer.cancel();
         }
