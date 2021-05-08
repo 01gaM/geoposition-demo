@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.app;
 
 import android.Manifest;
 import android.app.Dialog;
@@ -18,6 +18,7 @@ import com.example.geopositionmodule.ILocationCallback;
 import com.example.geopositionmodule.LatLng;
 import com.example.geopositionmodule.LocationProvider;
 import com.example.geopositionmodule.exceptions.AirplaneModeOnException;
+import com.example.geopositionmodule.exceptions.DeviceLocationDisabledException;
 import com.example.geopositionmodule.exceptions.LocationProviderDisabledException;
 import com.example.geopositionmodule.exceptions.LocationPermissionNotGrantedException;
 
@@ -28,7 +29,6 @@ public class CurrCoordinatesActivity extends BaseCoordinatesActivity {
     private LocationProvider locationProvider;
     private ProgressBar progressBar;
     private TextView progressMessage;
-    public static final int REQUEST_LOCATION_PERMISSION_CODE = 0;
     private Button displayMapButton;
     private LatLng currCoordinates = null;
     private Menu menu;
@@ -76,7 +76,7 @@ public class CurrCoordinatesActivity extends BaseCoordinatesActivity {
                     } else {
                         handleException(e);
                     }
-                } catch (LocationProviderDisabledException | AirplaneModeOnException e) {
+                } catch (LocationProviderDisabledException | AirplaneModeOnException | DeviceLocationDisabledException e) {
                     handleException(e);
                 }
             }

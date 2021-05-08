@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.app;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -11,10 +11,11 @@ import androidx.core.app.ActivityCompat;
 
 public abstract class BaseCoordinatesActivity extends AppCompatActivity implements Alertable, ActivityCompat.OnRequestPermissionsResultCallback{
     protected static boolean isPermissionRequestedFirstTime = true;
+    private final int REQUEST_LOCATION_PERMISSION_CODE = 0;
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == CurrCoordinatesActivity.REQUEST_LOCATION_PERMISSION_CODE) {
+        if (requestCode == REQUEST_LOCATION_PERMISSION_CODE) {
             if (grantResults.length == 0
                     || grantResults[0] == PackageManager.PERMISSION_DENIED) {
                 //Permission Denied!
@@ -34,7 +35,7 @@ public abstract class BaseCoordinatesActivity extends AppCompatActivity implemen
         ActivityCompat.requestPermissions(this, new String[]{
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION
-        }, CurrCoordinatesActivity.REQUEST_LOCATION_PERMISSION_CODE);
+        }, REQUEST_LOCATION_PERMISSION_CODE);
     }
 
     protected void handleException(Exception e){

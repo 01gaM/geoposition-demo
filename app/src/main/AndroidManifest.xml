@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.demo">
+    package="com.example.app">
 
     <application
         android:allowBackup="true"
@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.example.demo.MainActivity"
+            android:name="com.example.app.MainActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -19,22 +19,22 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.example.demo.CurrCoordinatesActivity"
+            android:name="com.example.app.CurrCoordinatesActivity"
             android:screenOrientation="portrait"></activity>
         <activity
-            android:name="com.example.demo.LastCoordinatesActivity"
+            android:name="com.example.app.LastCoordinatesActivity"
             android:screenOrientation="portrait"></activity>
         <activity
-            android:name="com.example.demo.UpdateCoordinatesActivity"
+            android:name="com.example.app.UpdateCoordinatesActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"></activity>
         <activity
-            android:name="com.example.demo.SpeedActivity"
+            android:name="com.example.app.SpeedActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"></activity>
 
         <service
-            android:name=".UpdateService"
+            android:name="com.example.app.UpdateService"
             android:foregroundServiceType="location" />
     </application>
 

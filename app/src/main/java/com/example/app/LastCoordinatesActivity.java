@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.app;
 
 import android.Manifest;
 import android.app.Dialog;
@@ -11,7 +11,6 @@ import android.widget.Toast;
 import com.example.geopositionmodule.ILocationCallback;
 import com.example.geopositionmodule.LatLng;
 import com.example.geopositionmodule.LocationProvider;
-import com.example.geopositionmodule.exceptions.LocationProviderDisabledException;
 import com.example.geopositionmodule.exceptions.LocationPermissionNotGrantedException;
 
 public class LastCoordinatesActivity extends BaseCoordinatesActivity {

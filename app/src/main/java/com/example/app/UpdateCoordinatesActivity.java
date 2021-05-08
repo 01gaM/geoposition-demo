@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.app;
 
 import android.Manifest;
 import android.app.PendingIntent;
@@ -41,7 +41,7 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
     private AccuracyPriority accuracyPriority;
     private Menu menu;
     private ProgressBar progressBar;
-    private boolean firstRequest = true;
+    private boolean isFirstRequest = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,11 +151,11 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
         Exception e = UpdateService.getCurrException();
         switch (resultCode) {
             case (UpdateService.UPDATE_SUCCEEDED):
-                if (firstRequest){
+                if (isFirstRequest){
                     double minutes = Double.parseDouble(editDelay.getText().toString());
                     startTimer(minutes);
                     progressBar.setVisibility(View.INVISIBLE);
-                    firstRequest = false;
+                    isFirstRequest = false;
                 }
                 LatLng lastUpdatedLocation = UpdateService.getLocation();
                 Toast toast = Toast.makeText(UpdateCoordinatesActivity.this, lastUpdatedLocation.toString(), Toast.LENGTH_LONG);
@@ -192,7 +192,7 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
         displayMapButton.setEnabled(false);
         menu.setGroupEnabled(R.id.menu_group, true);
         progressBar.setVisibility(View.INVISIBLE);
-        firstRequest = true;
+        isFirstRequest = true;
     }
 
     @Override

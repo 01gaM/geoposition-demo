@@ -6,6 +6,6 @@ public class LocationProviderDisabledException extends Exception {
     @Nullable
     @Override
     public String getMessage() {
-        return "Определение местоположения выключено на устройстве.";
+        return "Не удалось установить соединение с источником данных о местоположении. Попробуйте выбрать другой режим или повторите запрос позже.";
     }
 }

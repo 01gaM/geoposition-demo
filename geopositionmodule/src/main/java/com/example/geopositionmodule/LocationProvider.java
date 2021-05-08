@@ -3,6 +3,7 @@ package com.example.geopositionmodule;
 import android.content.Context;
 
 import com.example.geopositionmodule.exceptions.AirplaneModeOnException;
+import com.example.geopositionmodule.exceptions.DeviceLocationDisabledException;
 import com.example.geopositionmodule.exceptions.EmptyLocationCacheException;
 import com.example.geopositionmodule.exceptions.GooglePlayServicesNotAvailableException;
 import com.example.geopositionmodule.exceptions.IntervalValueOutOfRangeException;
@@ -39,8 +40,7 @@ public class LocationProvider implements ILocationProvider {
             return new LocationProviderClientAndroidAPI(context);
         }
         return new LocationProviderClientGoogleAPI(context);
-
-        //return new LocationProviderClientAndroidAPI(context);
+      //  return new LocationProviderClientAndroidAPI(context);
     }
 
     /**
@@ -64,12 +64,12 @@ public class LocationProvider implements ILocationProvider {
     }
 
     @Override
-    public void requestCurrentLocation(ILocationCallback callback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException, AirplaneModeOnException {
+    public void requestCurrentLocation(ILocationCallback callback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException, AirplaneModeOnException, DeviceLocationDisabledException {
         locationProviderClient.requestCurrentLocation(callback);
     }
 
     @Override
-    public void requestLocationUpdates(double intervalMin, ILocationCallback callback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException, IntervalValueOutOfRangeException, AirplaneModeOnException {
+    public void requestLocationUpdates(double intervalMin, ILocationCallback callback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException, IntervalValueOutOfRangeException, AirplaneModeOnException, DeviceLocationDisabledException {
         locationProviderClient.requestLocationUpdates(intervalMin, callback);
     }
 

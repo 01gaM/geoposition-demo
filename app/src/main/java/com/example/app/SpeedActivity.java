@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.app;
 
 import android.Manifest;
 import android.app.PendingIntent;
@@ -16,7 +16,6 @@ public class SpeedActivity extends BaseCoordinatesActivity {
     private Button showCurrSpeedButton;
     private Button stopSpeedUpdatesButton;
     private TextView tvSpeedValue;
-   // private TextView waitingMessage;
     private ProgressBar progressBar;
     private TextView tvSpeedMessage;
     private Intent intent;
@@ -27,7 +26,6 @@ public class SpeedActivity extends BaseCoordinatesActivity {
         setContentView(R.layout.activity_speed);
         showCurrSpeedButton = findViewById(R.id.button_request_speed_updates);
         stopSpeedUpdatesButton = findViewById(R.id.button_stop_speed_updates);
-      //  waitingMessage = findViewById(R.id.text_waiting_message);
         tvSpeedValue = findViewById(R.id.text_current_speed_value);
         progressBar = findViewById(R.id.progress_bar_speed);
         tvSpeedMessage = findViewById(R.id.text_current_speed_message);

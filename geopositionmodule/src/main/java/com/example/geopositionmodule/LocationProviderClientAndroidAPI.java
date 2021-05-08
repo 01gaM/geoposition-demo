@@ -1,3 +1,4 @@
+
 package com.example.geopositionmodule;
 
 import android.Manifest;
@@ -8,16 +9,18 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.example.geopositionmodule.exceptions.AirplaneModeOnException;
+import com.example.geopositionmodule.exceptions.DeviceLocationDisabledException;
 import com.example.geopositionmodule.exceptions.EmptyLocationCacheException;
 import com.example.geopositionmodule.exceptions.IntervalValueOutOfRangeException;
-import com.example.geopositionmodule.exceptions.LocationNotDeterminedException;
 import com.example.geopositionmodule.exceptions.LocationProviderDisabledException;
 import com.example.geopositionmodule.exceptions.LocationPermissionNotGrantedException;
 import com.example.geopositionmodule.exceptions.NetworkUpdateIntervalOutOfRangeException;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
@@ -66,8 +69,9 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
         String providerName = locationManager.getBestProvider(criteria, true);
         // If no suitable enabled provider is found, null is returned
         List<String> list = locationManager.getAllProviders();
-        if (providerName.equals(LocationManager.NETWORK_PROVIDER) && !isAirplaneModeOff(context)) {
-            throw new AirplaneModeOnException(); //TODO: remove this exception and set provider to GPS?
+        //locationManager.getProvider(providerName).requiresNetwork() TODO: try tris way
+        if (providerName.equals(LocationManager.NETWORK_PROVIDER)) {
+            checkAirplaneModeOff();
         }
         if (providerName != null) {
             return providerName;
@@ -109,8 +113,8 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
     }
 
     @Override
-    public void requestCurrentLocation(ILocationCallback callback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException, AirplaneModeOnException {
-        checkLocationSettingsEnabled(context);
+    public void requestCurrentLocation(ILocationCallback callback) throws LocationPermissionNotGrantedException, DeviceLocationDisabledException, AirplaneModeOnException, LocationProviderDisabledException {
+        checkLocationSettingsEnabled();
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                 ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             String providerName = getAvailableProviderName();
@@ -123,7 +127,7 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
 
                 @Override
                 public void onProviderDisabled(@NonNull String provider) {
-                    callback.callOnFail(new LocationProviderDisabledException());
+                    handleRequestFailure(callback);
                     stopLocationUpdates();
                 }
 
@@ -155,8 +159,8 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
     }
 
     @Override
-    public void requestLocationUpdates(double intervalMin, ILocationCallback callback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException, IntervalValueOutOfRangeException, AirplaneModeOnException {
-        checkLocationSettingsEnabled(context);
+    public void requestLocationUpdates(double intervalMin, ILocationCallback callback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException, IntervalValueOutOfRangeException, DeviceLocationDisabledException, AirplaneModeOnException {
+        checkLocationSettingsEnabled();
         checkUpdateIntervalValue(intervalMin);
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                 ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -171,7 +175,7 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
 
                 @Override
                 public void onProviderDisabled(@NonNull String provider) {
-                    callback.callOnFail(new LocationProviderDisabledException());
+                    handleRequestFailure(callback);
                     stopLocationUpdates();
                 }
 

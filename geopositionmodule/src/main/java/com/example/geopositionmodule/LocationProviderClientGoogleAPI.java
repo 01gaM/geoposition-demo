@@ -6,9 +6,9 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Looper;
 
+import com.example.geopositionmodule.exceptions.DeviceLocationDisabledException;
 import com.example.geopositionmodule.exceptions.EmptyLocationCacheException;
 import com.example.geopositionmodule.exceptions.IntervalValueOutOfRangeException;
-import com.example.geopositionmodule.exceptions.LocationNotDeterminedException;
 import com.example.geopositionmodule.exceptions.LocationProviderDisabledException;
 import com.example.geopositionmodule.exceptions.LocationPermissionNotGrantedException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -19,7 +19,6 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.tasks.CancellationToken;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import androidx.annotation.NonNull;
@@ -46,7 +45,7 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
      * Result is being retrieved by calling {@link FusedLocationProviderClient#getLastLocation()} method.
      *
      * @param myLocationCallback A callback to which a result as a LatLng instance is being passed to.
-     * @throws LocationNotDeterminedException        Exception is thrown when null last location found due to empty location cache:
+     * @throws EmptyLocationCacheException        Exception is thrown when null last location found due to empty location cache:
      *                                               - Location is turned off in the device settings (disabling location clears the cache)
      *                                               - The device never recorded its location (a new device or a device that has been restored to factory settings)
      *                                               - Google Play services on the device has restarted, and there is no active Fused Location Provider client that has requested location.
@@ -82,12 +81,13 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
      *
      * @param myLocationCallback A callback to which a result as a LatLng instance is being passed to.
      * @throws NullPointerException                  Exception is thrown if the device location can't be determined within reasonable time (tens of seconds)
-     * @throws LocationPermissionNotGrantedException Exception is thrown when location permission is not granted.
+     * @throws LocationPermissionNotGrantedException Exception is thrown when both {@link Manifest.permission#ACCESS_FINE_LOCATION}
+     *                                               and {@link Manifest.permission#ACCESS_COARSE_LOCATION} and not granted.
      * @throws LocationProviderDisabledException     Exception is thrown when both GPS and network location providers are disabled.
      */
     @Override
-    public void requestCurrentLocation(ILocationCallback myLocationCallback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException {
-        checkLocationSettingsEnabled(context);
+    public void requestCurrentLocation(ILocationCallback myLocationCallback) throws LocationPermissionNotGrantedException, DeviceLocationDisabledException {
+        checkLocationSettingsEnabled();
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                 ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             this.fusedLocationProviderClient.getCurrentLocation(accuracyPriority.getCode(), null)
@@ -95,12 +95,7 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
                         @Override
                         public void onSuccess(Location location) {
                             if (location == null) {
-                                try {
-                                    checkLocationSettingsEnabled(context);
-                                    myLocationCallback.callOnFail(new LocationNotDeterminedException()); //device location can't be determined within reasonable time (tens of seconds)
-                                } catch (LocationProviderDisabledException e) {
-                                    myLocationCallback.callOnFail(e);
-                                }
+                                handleRequestFailure(myLocationCallback);
                             } else {
                                 myLocationCallback.callOnSuccess(new LatLng(location));
                             }
@@ -123,9 +118,9 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
      * @throws IntervalValueOutOfRangeException      Exception is thrown when input interval value is out of range.
      */
     @Override
-    public void requestLocationUpdates(double intervalMin, ILocationCallback myLocationCallback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException, IntervalValueOutOfRangeException {
+    public void requestLocationUpdates(double intervalMin, ILocationCallback myLocationCallback) throws LocationPermissionNotGrantedException, IntervalValueOutOfRangeException, DeviceLocationDisabledException {
         checkUpdateIntervalValue(intervalMin);
-        checkLocationSettingsEnabled(context);
+        checkLocationSettingsEnabled();
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                 ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             LocationRequest locationRequest = LocationRequest.create();
@@ -147,12 +142,7 @@ public class LocationProviderClientGoogleAPI extends LocationProviderClient {
                 @Override
                 public void onLocationAvailability(@NonNull LocationAvailability locationAvailability) {
                     if (!locationAvailability.isLocationAvailable()) {
-                        try {
-                            checkLocationSettingsEnabled(context);
-                            myLocationCallback.callOnFail(new LocationNotDeterminedException());
-                        } catch (LocationProviderDisabledException e) {
-                            myLocationCallback.callOnFail(e);
-                        }
+                        handleRequestFailure(myLocationCallback);
                         stopLocationUpdates();
                     }
                 }

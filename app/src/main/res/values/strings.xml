@@ -13,6 +13,6 @@
     <string name="current_speed">x км/час</string>
     <string name="request_speed">Определить скорость</string>
     <string name="message_current_speed">Текущая скорость:</string>
-    <string name="get_speed_button">Определить скорость</string>
+    <string name="get_speed_button">Текущая скорость</string>
     <string name="display_on_map">Показать на карте</string>
 </resources>

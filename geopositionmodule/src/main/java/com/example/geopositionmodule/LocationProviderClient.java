@@ -1,16 +1,15 @@
 package com.example.geopositionmodule;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.provider.Settings;
 
+import com.example.geopositionmodule.exceptions.AirplaneModeOnException;
+import com.example.geopositionmodule.exceptions.DeviceLocationDisabledException;
 import com.example.geopositionmodule.exceptions.IntervalValueOutOfRangeException;
 import com.example.geopositionmodule.exceptions.LocationProviderDisabledException;
-import com.example.geopositionmodule.exceptions.LocationPermissionNotGrantedException;
 
-import androidx.core.app.ActivityCompat;
+import androidx.core.location.LocationManagerCompat;
 
 import static android.content.Context.LOCATION_SERVICE;
 
@@ -27,6 +26,7 @@ public abstract class LocationProviderClient implements ILocationProvider {
      *
      * @param accuracyPriority A new accuracy priority value from {@link com.example.geopositionmodule.AccuracyPriority} enum that is to be set to {@link #accuracyPriority} field
      */
+    @Override
     public void setAccuracyPriority(AccuracyPriority accuracyPriority) {
         this.accuracyPriority = accuracyPriority;
     }
@@ -38,21 +38,31 @@ public abstract class LocationProviderClient implements ILocationProvider {
     /**
      * This method checks whether the location settings are enabled on the device or not.
      *
-     * @throws LocationProviderDisabledException Exception is thrown when both GPS and network location providers are disabled.
+     * @throws DeviceLocationDisabledException Exception is thrown when both GPS and network location providers are disabled.
      */
-    protected void checkLocationSettingsEnabled(Context context) throws LocationProviderDisabledException {
+    protected void checkLocationSettingsEnabled() throws DeviceLocationDisabledException {
         LocationManager locationManager = (LocationManager) context.getSystemService(LOCATION_SERVICE);
         boolean gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        boolean networkEnabled = isAirplaneModeOff(context) && locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        boolean networkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
         if (!gpsEnabled && !networkEnabled) {
-            throw new LocationProviderDisabledException();
+            throw new DeviceLocationDisabledException();
         }
     }
 
-    protected boolean isAirplaneModeOff(Context context) {
+    protected void checkAirplaneModeOff() throws AirplaneModeOnException {
         int airplaneSetting = Settings.System.getInt(context.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, 0);
-        return airplaneSetting == 0;
+        if (!(airplaneSetting == 0)) {
+            throw new AirplaneModeOnException();
+        }
     }
+
+
+//    protected void checkLocationSettingsEnabled(Context context) throws DeviceLocationDisabledException {
+//        LocationManager locationManager = (LocationManager) context.getSystemService(LOCATION_SERVICE);
+//        if (!LocationManagerCompat.isLocationEnabled(locationManager)) {
+//            throw new DeviceLocationDisabledException();
+//        }
+//    }
 
 //    /**
 //     * This method checks whether the location access permission is granted for the app or not.
@@ -78,6 +88,16 @@ public abstract class LocationProviderClient implements ILocationProvider {
     protected void checkUpdateIntervalValue(double intervalMin) throws IntervalValueOutOfRangeException {
         if (intervalMin < LocationProvider.MINIMUM_UPDATE_INTERVAL || intervalMin > LocationProvider.MAXIMUM_UPDATE_INTERVAL) {
             throw new IntervalValueOutOfRangeException();
+        }
+    }
+
+    protected void handleRequestFailure(ILocationCallback callback){
+        try {
+            checkLocationSettingsEnabled();
+            checkAirplaneModeOff();
+            callback.callOnFail(new LocationProviderDisabledException());
+        } catch (DeviceLocationDisabledException | AirplaneModeOnException e) {
+            callback.callOnFail(e);
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.app;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -13,6 +13,7 @@ import com.example.geopositionmodule.ILocationCallback;
 import com.example.geopositionmodule.LatLng;
 import com.example.geopositionmodule.LocationProvider;
 import com.example.geopositionmodule.exceptions.AirplaneModeOnException;
+import com.example.geopositionmodule.exceptions.DeviceLocationDisabledException;
 import com.example.geopositionmodule.exceptions.IntervalValueOutOfRangeException;
 import com.example.geopositionmodule.exceptions.LocationProviderDisabledException;
 import com.example.geopositionmodule.exceptions.LocationPermissionNotGrantedException;
@@ -44,6 +45,7 @@ public class UpdateService extends Service {
         stopForeground(true);
     }
 
+    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         pendingIntent = intent.getParcelableExtra("pendingIntent");
         interval = intent.getDoubleExtra("intervalMin", 1);
@@ -137,7 +139,7 @@ public class UpdateService extends Service {
             } catch (PendingIntent.CanceledException canceledException) {
                 canceledException.printStackTrace();
             }
-        } catch (LocationProviderDisabledException | IntervalValueOutOfRangeException | AirplaneModeOnException e) {
+        } catch (LocationProviderDisabledException | IntervalValueOutOfRangeException | AirplaneModeOnException | DeviceLocationDisabledException e) {
             currException = e;
             stopForeground(true);
             try {
