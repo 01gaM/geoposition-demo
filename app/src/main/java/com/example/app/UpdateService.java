@@ -6,9 +6,9 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.IBinder;
 
-import com.example.geopositionmodule.AccuracyPriority;
 import com.example.geopositionmodule.ILocationCallback;
 import com.example.geopositionmodule.LatLng;
 import com.example.geopositionmodule.LocationProvider;
@@ -23,20 +23,29 @@ import androidx.core.app.NotificationCompat;
 
 
 public class UpdateService extends Service {
-    private static LocationProvider locationProvider;
+    private LocationProvider locationProvider;
     private PendingIntent pendingIntent;
-    private static LatLng location;
+    private LatLng location;
     private double interval;
-    private static Exception currException;
+    private Exception currException;
     private boolean showSpeed;
     private Class<?> activityClassName;
     public static final int UPDATE_SUCCEEDED = 0;
     public static final int UPDATE_FAILED = 1;
     public static final int LOCATION_PERMISSION_NOT_GRANTED = 2;
+    // This is the object that receives interactions from clients.
+    private final IBinder mBinder = new LocalBinder();
 
-    public void onCreate() {
-        super.onCreate();
-        locationProvider = new LocationProvider(getApplicationContext());
+
+    /**
+     * Class for clients to access.  Because we know this service always
+     * runs in the same process as its clients, we don't need to deal with
+     * IPC.
+     */
+    public class LocalBinder extends Binder {
+        UpdateService getService() {
+            return UpdateService.this;
+        }
     }
 
     @Override
@@ -50,11 +59,6 @@ public class UpdateService extends Service {
         pendingIntent = intent.getParcelableExtra("pendingIntent");
         interval = intent.getDoubleExtra("intervalMin", 1);
         showSpeed = intent.getBooleanExtra("showSpeed", false);
-        AccuracyPriority accuracyPriority = (AccuracyPriority) intent.getSerializableExtra("accuracyPriority");
-        if (accuracyPriority == null){
-            accuracyPriority = AccuracyPriority.PRIORITY_HIGH_ACCURACY;
-        }
-        locationProvider.setAccuracyPriority(accuracyPriority);
         if (showSpeed) {
             activityClassName = SpeedActivity.class;
         } else {
@@ -67,21 +71,22 @@ public class UpdateService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return mBinder;
     }
 
     private void setNotificationText(String title, String contentText) {
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        String channelId = "MY_CHANNEL_ID";
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel("MY_CHANNEL_ID",
-                    "MY_CHANNEL_NAME",
+            NotificationChannel channel = new NotificationChannel(channelId,
+                    "LOCATION_UPDATE_SERVICE_CHANNEL",
                     NotificationManager.IMPORTANCE_LOW);
-            channel.setDescription("MY_NOTIFICATION_CHANNEL_DESCRIPTION");
+            channel.setDescription("Notifications from service that calls location updates from \"geopositionmodule\"");
             mNotificationManager.createNotificationChannel(channel);
         }
 
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), "MY_CHANNEL_ID")
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), channelId)
                 .setSmallIcon(R.mipmap.ic_launcher) // notification icon
                 .setContentTitle(title) // title for notification
                 .setContentText(contentText)// message for notification
@@ -108,7 +113,7 @@ public class UpdateService extends Service {
             @Override
             public void callOnSuccess(LatLng lastUpdatedLocation) {
                 setLocationNotification(lastUpdatedLocation);
-                UpdateService.location = lastUpdatedLocation;
+                location = lastUpdatedLocation;
                 try {
                     pendingIntent.send(UPDATE_SUCCEEDED);
                 } catch (PendingIntent.CanceledException e) {
@@ -150,15 +155,15 @@ public class UpdateService extends Service {
         }
     }
 
-    public static LatLng getLocation() {
-        return UpdateService.location;
+    public LatLng getLocation() {
+        return location;
     }
 
-    public static LocationProvider getLocationProvider() {
-        return UpdateService.locationProvider;
+    public void setLocationProvider(LocationProvider locationProvider) {
+        this.locationProvider = locationProvider;
     }
 
-    public static Exception getCurrException() {
-        return UpdateService.currException;
+    public Exception getCurrException() {
+        return currException;
     }
 }

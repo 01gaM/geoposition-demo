@@ -27,7 +27,6 @@ import androidx.annotation.NonNull;
 public class CurrCoordinatesActivity extends BaseCoordinatesActivity {
     private Button sendRequestButton;
     private Button cancelRequestButton;
-    private LocationProvider locationProvider;
     private ProgressBar progressBar;
     private TextView progressMessage;
     private Button displayMapButton;

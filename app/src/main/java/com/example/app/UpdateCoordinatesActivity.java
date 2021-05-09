@@ -1,7 +1,6 @@
 package com.example.app;
 
 import android.Manifest;
-import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,13 +20,12 @@ import android.widget.Toast;
 
 import com.example.geopositionmodule.AccuracyPriority;
 import com.example.geopositionmodule.LatLng;
-import com.example.geopositionmodule.LocationProvider;
 
 import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
 
-public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
+public class UpdateCoordinatesActivity extends ServiceBinder {
     private Button requestUpdatesButton;
     private Button stopUpdatesButton;
     private EditText editDelay;
@@ -37,11 +35,10 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
     private Button displayMapButton;
     private LatLng currCoordinates = null;
     private MapDialog mapDialog;
-    private Intent intent;
-    private AccuracyPriority accuracyPriority;
     private Menu menu;
     private ProgressBar progressBar;
-    private boolean isFirstRequest = true;
+    private boolean shouldShowProgressBar = true; //progress bar should be shown only before first location fix
+    private final int UPDATE_REQUEST_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +51,9 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
         editDelay = findViewById(R.id.edit_text_interval);
         displayMapButton = findViewById(R.id.button_display_map);
         progressBar = findViewById(R.id.progress_bar_update);
+        setRequestCode(UPDATE_REQUEST_CODE);
+        doBindService();
+
         editDelay.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -80,16 +80,9 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
                 menu.setGroupEnabled(R.id.menu_group, false);
                 if (cTimer != null)
                     cTimer.cancel();
-                double minutes = Double.parseDouble(editDelay.getText().toString());
-                int TASK_CODE = 1;
-                PendingIntent pendingIntent = createPendingResult(TASK_CODE, new Intent(), 0);
-                intent = new Intent(getApplicationContext(), UpdateService.class)
-                        .putExtra("pendingIntent", pendingIntent)
-                        .putExtra("intervalMin", minutes)
-                        .putExtra("accuracyPriority", accuracyPriority);
-                intent.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
+                double intervalMin = Double.parseDouble(editDelay.getText().toString());
+                intent.putExtra("intervalMin", intervalMin);
                 startService(intent);
-                //startTimer(minutes);
             }
         };
         requestUpdatesButton.setOnClickListener(listener);
@@ -128,6 +121,7 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         item.setChecked(true);
+        AccuracyPriority accuracyPriority;
         switch (item.getItemId()) {
             case R.id.menu_priority_balanced_power_accuracy:
                 accuracyPriority = AccuracyPriority.PRIORITY_BALANCED_POWER_ACCURACY;
@@ -138,7 +132,6 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
             default:
                 accuracyPriority = AccuracyPriority.PRIORITY_HIGH_ACCURACY;
         }
-        LocationProvider locationProvider = UpdateService.getLocationProvider();
         if (locationProvider != null) {
             locationProvider.setAccuracyPriority(accuracyPriority);
         }
@@ -148,37 +141,39 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Exception e = UpdateService.getCurrException();
-        switch (resultCode) {
-            case (UpdateService.UPDATE_SUCCEEDED):
-                if (isFirstRequest){
-                    double minutes = Double.parseDouble(editDelay.getText().toString());
-                    startTimer(minutes);
-                    progressBar.setVisibility(View.INVISIBLE);
-                    isFirstRequest = false;
-                }
-                LatLng lastUpdatedLocation = UpdateService.getLocation();
-                Toast toast = Toast.makeText(UpdateCoordinatesActivity.this, lastUpdatedLocation.toString(), Toast.LENGTH_LONG);
-                toast.setGravity(Gravity.TOP, 0, 400);
-                toast.show();
-                cTimer.start(); //restart timer
-                displayMapButton.setEnabled(true);
-                currCoordinates = lastUpdatedLocation;
-                if (mapDialog != null) {
-                    mapDialog.setCurrentPoint(lastUpdatedLocation);
-                }
-                break;
-            case (UpdateService.UPDATE_FAILED):
-                handleException(e);
-                break;
-            case (UpdateService.LOCATION_PERMISSION_NOT_GRANTED):
-                if (isPermissionRequestedFirstTime || shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)
-                        && shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                    requestPermissions();
-                } else {
+        if (requestCode == UPDATE_REQUEST_CODE) {
+            Exception e = updateService.getCurrException();
+            switch (resultCode) {
+                case (UpdateService.UPDATE_SUCCEEDED):
+                    if (shouldShowProgressBar) {
+                        double minutes = Double.parseDouble(editDelay.getText().toString());
+                        startTimer(minutes);
+                        progressBar.setVisibility(View.INVISIBLE);
+                        shouldShowProgressBar = false;
+                    }
+                    LatLng lastUpdatedLocation = updateService.getLocation();
+                    Toast toast = Toast.makeText(UpdateCoordinatesActivity.this, lastUpdatedLocation.toString(), Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.TOP, 0, 400);
+                    toast.show();
+                    cTimer.start(); //restart timer
+                    displayMapButton.setEnabled(true);
+                    currCoordinates = lastUpdatedLocation;
+                    if (mapDialog != null) {
+                        mapDialog.setCurrentPoint(lastUpdatedLocation);
+                    }
+                    break;
+                case (UpdateService.UPDATE_FAILED):
                     handleException(e);
-                }
-                break;
+                    break;
+                case (UpdateService.LOCATION_PERMISSION_NOT_GRANTED):
+                    if (isPermissionRequestedFirstTime || shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)
+                            && shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                        requestPermissions();
+                    } else {
+                        handleException(e);
+                    }
+                    break;
+            }
         }
     }
 
@@ -192,7 +187,7 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
         displayMapButton.setEnabled(false);
         menu.setGroupEnabled(R.id.menu_group, true);
         progressBar.setVisibility(View.INVISIBLE);
-        isFirstRequest = true;
+        shouldShowProgressBar = true;
     }
 
     @Override
@@ -201,15 +196,18 @@ public class UpdateCoordinatesActivity extends BaseCoordinatesActivity {
         if (intent != null) {
             stopService(intent);
         }
+        doUnbindService();
         super.onDestroy();
     }
 
     private void stopTimer() {
         if (cTimer != null)
             cTimer.cancel();
-        LocationProvider locationProvider = UpdateService.getLocationProvider();
         if (locationProvider != null)
             locationProvider.stopLocationUpdates();
+        if (updateService != null) {
+            updateService.stopForeground(true);
+        }
     }
 
     private void startTimer(double minutesInterval) {

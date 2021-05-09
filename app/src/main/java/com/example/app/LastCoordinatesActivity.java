@@ -15,7 +15,6 @@ import com.example.geopositionmodule.exceptions.LocationPermissionNotGrantedExce
 
 public class LastCoordinatesActivity extends BaseCoordinatesActivity {
     private Button showToastButton;
-    private LocationProvider locationProvider;
     private Button displayMapButton;
     private LatLng lastCoordinates = null;
 
