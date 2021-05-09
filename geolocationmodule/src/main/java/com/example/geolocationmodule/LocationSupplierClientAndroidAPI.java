@@ -106,7 +106,7 @@ public class LocationSupplierClientAndroidAPI extends LocationSupplierClient {
      * @throws NullPointerException Exception is thrown when location is null.
      */
     @Override
-    public void getLastKnownLocation(ILocationCallback myLocationCallback) throws LocationPermissionNotGrantedException {
+    public void getLastKnownLocation(ILocationCallback callback) throws LocationPermissionNotGrantedException {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             List<String> providerNames = locationManager.getAllProviders();
@@ -123,9 +123,9 @@ public class LocationSupplierClientAndroidAPI extends LocationSupplierClient {
                 }
             }
             if (location != null) {
-                myLocationCallback.callOnSuccess(new LatLng(location));
+                callback.callOnSuccess(new LatLng(location));
             } else {
-                myLocationCallback.callOnFail(new EmptyLocationCacheException()); //null last location found due to empty location cache
+                callback.callOnFail(new EmptyLocationCacheException()); //null last location found due to empty location cache
             }
         } else {
             throw new LocationPermissionNotGrantedException();

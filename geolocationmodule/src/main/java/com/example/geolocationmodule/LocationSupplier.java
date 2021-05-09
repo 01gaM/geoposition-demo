@@ -28,10 +28,10 @@ public class LocationSupplier implements ILocationSupplier {
 
     public LocationSupplier(Context context) {
         this.context = context;
-        this.locationSupplierClient = createLocationProviderClient();
+        this.locationSupplierClient = createLocationSupplierClient();
     }
 
-    private LocationSupplierClient createLocationProviderClient() {
+    private LocationSupplierClient createLocationSupplierClient() {
         try {
             checkGooglePlayServicesAvailable(context);
         } catch (GooglePlayServicesNotAvailableException e) {
