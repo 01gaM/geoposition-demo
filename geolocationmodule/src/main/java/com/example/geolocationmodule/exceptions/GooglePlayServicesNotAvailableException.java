@@ -1,11 +1,12 @@
 package com.example.geolocationmodule.exceptions;
 
+import com.google.android.gms.common.ConnectionResult;
+
 import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-//TODO: change getErrorType
 public class GooglePlayServicesNotAvailableException extends Exception {
     private final int connectionResultCode;
 
@@ -16,62 +17,61 @@ public class GooglePlayServicesNotAvailableException extends Exception {
     @Nullable
     @Override
     public String getMessage() {
-        //ConnectionResult connectionResult = new ConnectionResult(connectionResultCode);
         return String.format(Locale.US, "Сервисы Google Play недоступны или необходимо обновление. Код ошибки: %d (%s)", connectionResultCode, getErrorType(connectionResultCode));
     }
 
     @NonNull
     private String getErrorType(int errorCode) {
         switch (errorCode) {
-            case -1:
+            case ConnectionResult.UNKNOWN:
                 return "UNKNOWN";
-            case 1:
+            case ConnectionResult.SERVICE_MISSING:
                 return "SERVICE_MISSING";
-            case 2:
+            case ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED:
                 return "SERVICE_VERSION_UPDATE_REQUIRED";
-            case 3:
+            case ConnectionResult.SERVICE_DISABLED:
                 return "SERVICE_DISABLED";
-            case 4:
+            case ConnectionResult.SIGN_IN_REQUIRED:
                 return "SIGN_IN_REQUIRED";
-            case 5:
+            case ConnectionResult.INVALID_ACCOUNT:
                 return "INVALID_ACCOUNT";
-            case 6:
+            case ConnectionResult.RESOLUTION_REQUIRED:
                 return "RESOLUTION_REQUIRED";
-            case 7:
+            case ConnectionResult.NETWORK_ERROR:
                 return "NETWORK_ERROR";
-            case 8:
+            case ConnectionResult.INTERNAL_ERROR:
                 return "INTERNAL_ERROR";
-            case 9:
+            case ConnectionResult.SERVICE_INVALID:
                 return "SERVICE_INVALID";
-            case 10:
+            case ConnectionResult.DEVELOPER_ERROR:
                 return "DEVELOPER_ERROR";
-            case 11:
+            case ConnectionResult.LICENSE_CHECK_FAILED:
                 return "LICENSE_CHECK_FAILED";
-            case 13:
+            case ConnectionResult.CANCELED:
                 return "CANCELED";
-            case 14:
+            case ConnectionResult.TIMEOUT:
                 return "TIMEOUT";
-            case 15:
+            case ConnectionResult.INTERRUPTED:
                 return "INTERRUPTED";
-            case 16:
+            case ConnectionResult.API_UNAVAILABLE:
                 return "API_UNAVAILABLE";
-            case 17:
+            case ConnectionResult.SIGN_IN_FAILED:
                 return "SIGN_IN_FAILED";
-            case 18:
+            case ConnectionResult.SERVICE_UPDATING:
                 return "SERVICE_UPDATING";
-            case 19:
+            case ConnectionResult.SERVICE_MISSING_PERMISSION:
                 return "SERVICE_MISSING_PERMISSION";
-            case 20:
+            case ConnectionResult.RESTRICTED_PROFILE:
                 return "RESTRICTED_PROFILE";
             case 21:
                 return "API_VERSION_UPDATE_REQUIRED";
-            case 22:
+            case ConnectionResult.RESOLUTION_ACTIVITY_NOT_FOUND:
                 return "RESOLUTION_ACTIVITY_NOT_FOUND";
-            case 23:
+            case ConnectionResult.API_DISABLED:
                 return "API_DISABLED";
             case 99:
                 return "UNFINISHED";
-            case 1500:
+            case ConnectionResult.DRIVE_EXTERNAL_STORAGE_REQUIRED:
                 return "DRIVE_EXTERNAL_STORAGE_REQUIRED";
             default:
                 return "UNKNOWN_ERROR_CODE(" + errorCode + ")";
