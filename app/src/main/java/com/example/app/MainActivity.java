@@ -16,6 +16,7 @@ public class MainActivity extends AppCompatActivity implements Alertable {
     private Button lastCoordinatesButton;
     private Button updateCoordinatesButton;
     private Button getSpeedButton;
+    private static boolean shouldShowWarning = true; //Activity launched first time after app started
 
     private Button.OnClickListener generateButtonOnClickListener(Class<?> cls) {
         return new Button.OnClickListener() {
@@ -52,8 +53,7 @@ public class MainActivity extends AppCompatActivity implements Alertable {
     }
 
     private void checkGooglePlayServices() {
-        boolean firstRun = getSharedPreferences("PREFERENCE", MODE_PRIVATE).getBoolean("firstrun", true);
-        if (firstRun) {
+        if (shouldShowWarning) {
             try {
                 LocationProvider.checkGooglePlayServicesAvailable(this);
             } catch (GooglePlayServicesNotAvailableException e) {
@@ -61,10 +61,7 @@ public class MainActivity extends AppCompatActivity implements Alertable {
                 displayAlert("Приложение работает медленнее без использования сервисов Google Play! " + e.getMessage(),
                         "Предупреждение", this);
             }
-            getSharedPreferences("PREFERENCE", MODE_PRIVATE)
-                    .edit()
-                    .putBoolean("firstrun", false)
-                    .apply();
+            shouldShowWarning = false;
         }
     }
 }
