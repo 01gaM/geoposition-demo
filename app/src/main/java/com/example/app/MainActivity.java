@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-import com.example.geopositionmodule.LocationProvider;
+import com.example.geopositionmodule.LocationSupplier;
 import com.example.geopositionmodule.exceptions.GooglePlayServicesNotAvailableException;
 
 
@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements Alertable {
     private void checkGooglePlayServices() {
         if (shouldShowWarning) {
             try {
-                LocationProvider.checkGooglePlayServicesAvailable(this);
+                LocationSupplier.checkGooglePlayServicesAvailable(this);
             } catch (GooglePlayServicesNotAvailableException e) {
                 e.printStackTrace();
                 displayAlert("Приложение работает медленнее без использования сервисов Google Play! " + e.getMessage(),

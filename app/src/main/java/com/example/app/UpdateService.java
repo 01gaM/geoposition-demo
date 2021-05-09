@@ -11,7 +11,7 @@ import android.os.IBinder;
 
 import com.example.geopositionmodule.ILocationCallback;
 import com.example.geopositionmodule.LatLng;
-import com.example.geopositionmodule.LocationProvider;
+import com.example.geopositionmodule.LocationSupplier;
 import com.example.geopositionmodule.exceptions.AirplaneModeOnException;
 import com.example.geopositionmodule.exceptions.DeviceLocationDisabledException;
 import com.example.geopositionmodule.exceptions.IntervalValueOutOfRangeException;
@@ -23,7 +23,7 @@ import androidx.core.app.NotificationCompat;
 
 
 public class UpdateService extends Service {
-    private LocationProvider locationProvider;
+    private LocationSupplier locationSupplier;
     private PendingIntent pendingIntent;
     private LatLng location;
     private double interval;
@@ -135,7 +135,7 @@ public class UpdateService extends Service {
         };
 
         try {
-            locationProvider.requestLocationUpdates(interval, myCallback);
+            locationSupplier.requestLocationUpdates(interval, myCallback);
         } catch (LocationPermissionNotGrantedException e) {
             currException = e;
             stopForeground(true);
@@ -159,8 +159,8 @@ public class UpdateService extends Service {
         return location;
     }
 
-    public void setLocationProvider(LocationProvider locationProvider) {
-        this.locationProvider = locationProvider;
+    public void setLocationSupplier(LocationSupplier locationSupplier) {
+        this.locationSupplier = locationSupplier;
     }
 
     public Exception getCurrException() {

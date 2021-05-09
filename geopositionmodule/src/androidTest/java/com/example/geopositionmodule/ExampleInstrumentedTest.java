@@ -20,7 +20,7 @@ public class ExampleInstrumentedTest {
    @Test
    public void setAccuracyPriority_GoogleAPI(){
        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-       LocationProviderClientGoogleAPI locationProviderClient = new LocationProviderClientGoogleAPI(appContext);
+       LocationSupplierClientGoogleAPI locationProviderClient = new LocationSupplierClientGoogleAPI(appContext);
        assertEquals(AccuracyPriority.PRIORITY_HIGH_ACCURACY.getCode(), locationProviderClient.getAccuracyPriority()); //default value
        locationProviderClient.setAccuracyPriority(AccuracyPriority.PRIORITY_LOW_POWER);
        assertEquals(AccuracyPriority.PRIORITY_LOW_POWER.getCode(), locationProviderClient.getAccuracyPriority());
@@ -29,7 +29,7 @@ public class ExampleInstrumentedTest {
     @Test
     public void stopLocationUpdates_noActiveUpdates_GoogleAPI(){
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        LocationProviderClientGoogleAPI locationProviderClient = new LocationProviderClientGoogleAPI(appContext);
+        LocationSupplierClientGoogleAPI locationProviderClient = new LocationSupplierClientGoogleAPI(appContext);
         locationProviderClient.stopLocationUpdates();
         assertNull(locationProviderClient.getUpdateLocationCallback());
     }
@@ -37,7 +37,7 @@ public class ExampleInstrumentedTest {
     @Test
     public void stopLocationUpdates_noActiveUpdates_AndroidAPI(){
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        LocationProviderClientAndroidAPI locationProviderClient = new LocationProviderClientAndroidAPI(appContext);
+        LocationSupplierClientAndroidAPI locationProviderClient = new LocationSupplierClientAndroidAPI(appContext);
         locationProviderClient.stopLocationUpdates();
         assertNull(locationProviderClient.getUpdateLocationListener());
     }

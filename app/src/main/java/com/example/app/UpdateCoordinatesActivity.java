@@ -132,8 +132,8 @@ public class UpdateCoordinatesActivity extends ServiceBinder {
             default:
                 accuracyPriority = AccuracyPriority.PRIORITY_HIGH_ACCURACY;
         }
-        if (locationProvider != null) {
-            locationProvider.setAccuracyPriority(accuracyPriority);
+        if (locationSupplier != null) {
+            locationSupplier.setAccuracyPriority(accuracyPriority);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -203,8 +203,8 @@ public class UpdateCoordinatesActivity extends ServiceBinder {
     private void stopTimer() {
         if (cTimer != null)
             cTimer.cancel();
-        if (locationProvider != null)
-            locationProvider.stopLocationUpdates();
+        if (locationSupplier != null)
+            locationSupplier.stopLocationUpdates();
         if (updateService != null) {
             updateService.stopForeground(true);
         }

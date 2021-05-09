@@ -12,9 +12,9 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
 
-public class LocationProvider implements ILocationProvider {
+public class LocationSupplier implements ILocationSupplier {
     private final Context context; //the context in which this LocationProvider instance was created
-    private final LocationProviderClient locationProviderClient;
+    private final LocationSupplierClient locationSupplierClient;
     /**
      * The minimum location update interval in minutes (equals 0.016 minutes ~ 1 second)
      * Used for {@link #requestLocationUpdates(double, ILocationCallback)} method
@@ -26,19 +26,19 @@ public class LocationProvider implements ILocationProvider {
      */
     public static final double MAXIMUM_UPDATE_INTERVAL = 45000;
 
-    public LocationProvider(Context context) {
+    public LocationSupplier(Context context) {
         this.context = context;
-        this.locationProviderClient = createLocationProviderClient();
+        this.locationSupplierClient = createLocationProviderClient();
     }
 
-    private LocationProviderClient createLocationProviderClient() {
+    private LocationSupplierClient createLocationProviderClient() {
         try {
             checkGooglePlayServicesAvailable(context);
         } catch (GooglePlayServicesNotAvailableException e) {
             e.printStackTrace();
-            return new LocationProviderClientAndroidAPI(context);
+            return new LocationSupplierClientAndroidAPI(context);
         }
-        return new LocationProviderClientGoogleAPI(context);
+        return new LocationSupplierClientGoogleAPI(context);
     }
 
     /**
@@ -57,31 +57,31 @@ public class LocationProvider implements ILocationProvider {
 
     @Override
     public void getLastKnownLocation(ILocationCallback callback) throws LocationPermissionNotGrantedException {
-        locationProviderClient.getLastKnownLocation(callback);
+        locationSupplierClient.getLastKnownLocation(callback);
     }
 
     @Override
     public void requestCurrentLocation(ILocationCallback callback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException, AirplaneModeOnException, DeviceLocationDisabledException {
-        locationProviderClient.requestCurrentLocation(callback);
+        locationSupplierClient.requestCurrentLocation(callback);
     }
 
     @Override
     public void cancelCurrentLocationRequest() {
-        locationProviderClient.cancelCurrentLocationRequest();
+        locationSupplierClient.cancelCurrentLocationRequest();
     }
 
     @Override
     public void requestLocationUpdates(double intervalMin, ILocationCallback callback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException, IntervalValueOutOfRangeException, AirplaneModeOnException, DeviceLocationDisabledException {
-        locationProviderClient.requestLocationUpdates(intervalMin, callback);
+        locationSupplierClient.requestLocationUpdates(intervalMin, callback);
     }
 
     @Override
     public void stopLocationUpdates() {
-        locationProviderClient.stopLocationUpdates();
+        locationSupplierClient.stopLocationUpdates();
     }
 
     @Override
     public void setAccuracyPriority(AccuracyPriority accuracyPriority) {
-        locationProviderClient.setAccuracyPriority(accuracyPriority);
+        locationSupplierClient.setAccuracyPriority(accuracyPriority);
     }
 }

@@ -7,7 +7,7 @@ import com.example.geopositionmodule.exceptions.IntervalValueOutOfRangeException
 import com.example.geopositionmodule.exceptions.LocationProviderDisabledException;
 import com.example.geopositionmodule.exceptions.LocationPermissionNotGrantedException;
 
-public interface ILocationProvider {
+public interface ILocationSupplier {
     void getLastKnownLocation(ILocationCallback callback) throws LocationPermissionNotGrantedException;
 
     void requestCurrentLocation(ILocationCallback callback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException,

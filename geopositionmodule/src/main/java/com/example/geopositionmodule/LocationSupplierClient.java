@@ -9,15 +9,13 @@ import com.example.geopositionmodule.exceptions.DeviceLocationDisabledException;
 import com.example.geopositionmodule.exceptions.IntervalValueOutOfRangeException;
 import com.example.geopositionmodule.exceptions.LocationProviderDisabledException;
 
-import androidx.core.location.LocationManagerCompat;
-
 import static android.content.Context.LOCATION_SERVICE;
 
-public abstract class LocationProviderClient implements ILocationProvider {
+public abstract class LocationSupplierClient implements ILocationSupplier {
     protected final Context context;
     protected AccuracyPriority accuracyPriority = AccuracyPriority.PRIORITY_HIGH_ACCURACY;
 
-    protected LocationProviderClient(Context context) {
+    protected LocationSupplierClient(Context context) {
         this.context = context;
     }
 
@@ -62,11 +60,11 @@ public abstract class LocationProviderClient implements ILocationProvider {
      *
      * @param intervalMin An input value for {@link #requestLocationUpdates(double, ILocationCallback)} method.
      * @throws IntervalValueOutOfRangeException Exception is thrown when input value is
-     *                                          less than {@link LocationProvider#MINIMUM_UPDATE_INTERVAL} or
-     *                                          more than {@link LocationProvider#MINIMUM_UPDATE_INTERVAL}.
+     *                                          less than {@link LocationSupplier#MINIMUM_UPDATE_INTERVAL} or
+     *                                          more than {@link LocationSupplier#MINIMUM_UPDATE_INTERVAL}.
      */
     protected void checkUpdateIntervalValue(double intervalMin) throws IntervalValueOutOfRangeException {
-        if (intervalMin < LocationProvider.MINIMUM_UPDATE_INTERVAL || intervalMin > LocationProvider.MAXIMUM_UPDATE_INTERVAL) {
+        if (intervalMin < LocationSupplier.MINIMUM_UPDATE_INTERVAL || intervalMin > LocationSupplier.MAXIMUM_UPDATE_INTERVAL) {
             throw new IntervalValueOutOfRangeException();
         }
     }

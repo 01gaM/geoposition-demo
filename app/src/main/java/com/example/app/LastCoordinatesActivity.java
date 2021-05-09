@@ -10,7 +10,7 @@ import android.widget.Toast;
 
 import com.example.geopositionmodule.ILocationCallback;
 import com.example.geopositionmodule.LatLng;
-import com.example.geopositionmodule.LocationProvider;
+import com.example.geopositionmodule.LocationSupplier;
 import com.example.geopositionmodule.exceptions.LocationPermissionNotGrantedException;
 
 public class LastCoordinatesActivity extends BaseCoordinatesActivity {
@@ -23,7 +23,7 @@ public class LastCoordinatesActivity extends BaseCoordinatesActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_last_coordinates);
         showToastButton = findViewById(R.id.request_last_coordinates_button);
-        locationProvider = new LocationProvider(LastCoordinatesActivity.this);
+        locationSupplier = new LocationSupplier(LastCoordinatesActivity.this);
         displayMapButton = findViewById(R.id.button_display_map);
         Button.OnClickListener listener = new Button.OnClickListener() {
             @Override
@@ -44,7 +44,7 @@ public class LastCoordinatesActivity extends BaseCoordinatesActivity {
                             handleException(e);
                         }
                     };
-                    locationProvider.getLastKnownLocation(myCallback);
+                    locationSupplier.getLastKnownLocation(myCallback);
                 } catch (LocationPermissionNotGrantedException e) {
                     if (isPermissionRequestedFirstTime || shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)
                             && shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)) {

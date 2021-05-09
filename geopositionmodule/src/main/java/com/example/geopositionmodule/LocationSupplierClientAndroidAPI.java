@@ -31,7 +31,7 @@ import androidx.core.app.ActivityCompat;
 /**
  * A location provider that uses LocationManager from Android Location API (supports devices with no Google Play services)
  */
-public class LocationProviderClientAndroidAPI extends LocationProviderClient {
+public class LocationSupplierClientAndroidAPI extends LocationSupplierClient {
     private final LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
     private LocationListener updateLocationListener;
     private LocationListener currLocationListener;
@@ -46,7 +46,7 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
     private final long REQUEST_TIMEOUT_MILLIS = TimeUnit.MINUTES.toMillis(1);
     private BroadcastReceiver airplaneModeUpdatesReceiver = null;
 
-    public LocationProviderClientAndroidAPI(Context context) {
+    public LocationSupplierClientAndroidAPI(Context context) {
         super(context);
     }
 
@@ -158,8 +158,8 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
      *
      * @param intervalMin An input value for {@link #requestLocationUpdates(double, ILocationCallback)} method.
      * @throws IntervalValueOutOfRangeException Exception is thrown when input value is
-     *                                          less than {@link com.example.geopositionmodule.LocationProvider#MINIMUM_UPDATE_INTERVAL} or
-     *                                          more than {@link com.example.geopositionmodule.LocationProvider#MINIMUM_UPDATE_INTERVAL}.
+     *                                          less than {@link LocationSupplier#MINIMUM_UPDATE_INTERVAL} or
+     *                                          more than {@link LocationSupplier#MINIMUM_UPDATE_INTERVAL}.
      */
     private void checkNetworkUpdateIntervalValue(double intervalMin) throws NetworkUpdateIntervalOutOfRangeException {
         if (intervalMin < MINIMUM_UPDATE_INTERVAL_NETWORK) {

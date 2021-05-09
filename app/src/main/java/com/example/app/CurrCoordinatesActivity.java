@@ -16,7 +16,7 @@ import android.widget.Toast;
 import com.example.geopositionmodule.AccuracyPriority;
 import com.example.geopositionmodule.ILocationCallback;
 import com.example.geopositionmodule.LatLng;
-import com.example.geopositionmodule.LocationProvider;
+import com.example.geopositionmodule.LocationSupplier;
 import com.example.geopositionmodule.exceptions.AirplaneModeOnException;
 import com.example.geopositionmodule.exceptions.DeviceLocationDisabledException;
 import com.example.geopositionmodule.exceptions.LocationProviderDisabledException;
@@ -42,7 +42,7 @@ public class CurrCoordinatesActivity extends BaseCoordinatesActivity {
         progressBar = findViewById(R.id.progressBar);
         progressMessage = findViewById(R.id.request_in_progress_message);
         displayMapButton = findViewById(R.id.button_display_map);
-        locationProvider = new LocationProvider(CurrCoordinatesActivity.this);
+        locationSupplier = new LocationSupplier(CurrCoordinatesActivity.this);
 
         Button.OnClickListener listener = new Button.OnClickListener() {
             @Override
@@ -70,7 +70,7 @@ public class CurrCoordinatesActivity extends BaseCoordinatesActivity {
                             handleException(e);
                         }
                     };
-                    locationProvider.requestCurrentLocation(myCallback);
+                    locationSupplier.requestCurrentLocation(myCallback);
                 } catch (LocationPermissionNotGrantedException e) {
                     if (isPermissionRequestedFirstTime || shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)
                             && shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)) {
@@ -95,7 +95,7 @@ public class CurrCoordinatesActivity extends BaseCoordinatesActivity {
         cancelRequestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                locationProvider.cancelCurrentLocationRequest();
+                locationSupplier.cancelCurrentLocationRequest();
                 resetElementsState();
             }
         });
@@ -114,13 +114,13 @@ public class CurrCoordinatesActivity extends BaseCoordinatesActivity {
         item.setChecked(true);
         switch (item.getItemId()) {
             case R.id.menu_priority_balanced_power_accuracy:
-                locationProvider.setAccuracyPriority(AccuracyPriority.PRIORITY_BALANCED_POWER_ACCURACY);
+                locationSupplier.setAccuracyPriority(AccuracyPriority.PRIORITY_BALANCED_POWER_ACCURACY);
                 break;
             case R.id.menu_priority_low_power:
-                locationProvider.setAccuracyPriority(AccuracyPriority.PRIORITY_LOW_POWER);
+                locationSupplier.setAccuracyPriority(AccuracyPriority.PRIORITY_LOW_POWER);
                 break;
             default:
-                locationProvider.setAccuracyPriority(AccuracyPriority.PRIORITY_HIGH_ACCURACY);
+                locationSupplier.setAccuracyPriority(AccuracyPriority.PRIORITY_HIGH_ACCURACY);
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -138,7 +138,7 @@ public class CurrCoordinatesActivity extends BaseCoordinatesActivity {
     @Override
     protected void onDestroy() {
         if (cancelRequestButton.isEnabled()){
-            locationProvider.cancelCurrentLocationRequest();
+            locationSupplier.cancelCurrentLocationRequest();
         }
         super.onDestroy();
     }

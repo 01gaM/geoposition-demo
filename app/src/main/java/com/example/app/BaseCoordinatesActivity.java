@@ -4,7 +4,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 
-import com.example.geopositionmodule.LocationProvider;
+import com.example.geopositionmodule.LocationSupplier;
 import com.example.geopositionmodule.exceptions.LocationPermissionNotGrantedException;
 
 import androidx.annotation.NonNull;
@@ -15,13 +15,13 @@ import androidx.core.app.ActivityCompat;
 public abstract class BaseCoordinatesActivity extends AppCompatActivity implements Alertable, ActivityCompat.OnRequestPermissionsResultCallback {
     protected static boolean isPermissionRequestedFirstTime;
     private final int REQUEST_LOCATION_PERMISSION_CODE = 0;
-    protected LocationProvider locationProvider;
+    protected LocationSupplier locationSupplier;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         isPermissionRequestedFirstTime = getSharedPreferences("PREFERENCE", MODE_PRIVATE).getBoolean("firstRun", true);
-        locationProvider = new LocationProvider(getApplicationContext());
+        locationSupplier = new LocationSupplier(getApplicationContext());
     }
 
     @Override

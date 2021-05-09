@@ -1,6 +1,6 @@
 package com.example.geopositionmodule.exceptions;
 
-import com.example.geopositionmodule.LocationProvider;
+import com.example.geopositionmodule.LocationSupplier;
 
 import java.util.Locale;
 
@@ -11,7 +11,7 @@ public class IntervalValueOutOfRangeException extends Exception {
     @Override
     public String getMessage() {
         return String.format(Locale.US, "Значение интервала должно быть от %.3f до %.0f мин",
-                LocationProvider.MINIMUM_UPDATE_INTERVAL,
-                LocationProvider.MAXIMUM_UPDATE_INTERVAL);
+                LocationSupplier.MINIMUM_UPDATE_INTERVAL,
+                LocationSupplier.MAXIMUM_UPDATE_INTERVAL);
     }
 }

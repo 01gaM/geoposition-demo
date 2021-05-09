@@ -28,12 +28,12 @@ import androidx.core.app.ActivityCompat;
 /**
  * A location provider that uses Fused Location Provider API from Google Play services Location library (supports devices with Google Play services only)
  */
-public class LocationProviderClientGoogleAPI extends LocationProviderClient {
+public class LocationSupplierClientGoogleAPI extends LocationSupplierClient {
     private final FusedLocationProviderClient fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context); //an instance of a Fused Location Provider API Client
     private LocationCallback updateLocationCallback = null; //a callback used in requestLocationUpdates()
     private CancellationTokenSource currLocationCancellationToken;
 
-    protected LocationProviderClientGoogleAPI(Context context) {
+    protected LocationSupplierClientGoogleAPI(Context context) {
         super(context);
     }
 

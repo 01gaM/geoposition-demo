@@ -9,7 +9,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.geopositionmodule.LatLng;
-import com.example.geopositionmodule.LocationProvider;
+import com.example.geopositionmodule.LocationSupplier;
 
 public class SpeedActivity extends ServiceBinder {
     private Button showCurrSpeedButton;
@@ -39,7 +39,7 @@ public class SpeedActivity extends ServiceBinder {
                 tvSpeedMessage.setText(R.string.request_in_progress);
                 progressBar.setVisibility(View.VISIBLE);
                 intent.putExtra("showSpeed", true)
-                        .putExtra("intervalMin", LocationProvider.MINIMUM_UPDATE_INTERVAL);
+                        .putExtra("intervalMin", LocationSupplier.MINIMUM_UPDATE_INTERVAL);
                 startService(intent);
             }
         };
@@ -48,7 +48,7 @@ public class SpeedActivity extends ServiceBinder {
             @Override
             public void onClick(View v) {
                 resetElementsState();
-                locationProvider.stopLocationUpdates();
+                locationSupplier.stopLocationUpdates();
                 stopService(intent);
                 if (updateService != null) {
                     updateService.stopForeground(true);
@@ -88,8 +88,8 @@ public class SpeedActivity extends ServiceBinder {
 
     @Override
     protected void onDestroy() {
-        if (locationProvider != null)
-            locationProvider.stopLocationUpdates();
+        if (locationSupplier != null)
+            locationSupplier.stopLocationUpdates();
         if (intent != null) {
             stopService(intent);
         }

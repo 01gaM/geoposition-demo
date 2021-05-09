@@ -7,7 +7,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 
-import com.example.geopositionmodule.LocationProvider;
+import com.example.geopositionmodule.LocationSupplier;
 
 public abstract class ServiceBinder extends BaseCoordinatesActivity {
     protected Intent intent;
@@ -21,8 +21,8 @@ public abstract class ServiceBinder extends BaseCoordinatesActivity {
             // interact with the service.  Because we have bound to a explicit service that we know is running in our own process, we can
             // cast its IBinder to a concrete class and directly access it.
             updateService = ((UpdateService.LocalBinder) service).getService();
-            locationProvider = new LocationProvider(getApplicationContext());
-            updateService.setLocationProvider(locationProvider);
+            locationSupplier = new LocationSupplier(getApplicationContext());
+            updateService.setLocationSupplier(locationSupplier);
             PendingIntent pendingIntent = createPendingResult(requestCode, new Intent(), 0);
             intent = new Intent(getApplicationContext(), UpdateService.class)
                     .putExtra("pendingIntent", pendingIntent);
