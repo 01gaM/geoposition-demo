@@ -13,6 +13,8 @@ public interface ILocationProvider {
     void requestCurrentLocation(ILocationCallback callback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException,
             AirplaneModeOnException, DeviceLocationDisabledException;
 
+    void cancelCurrentLocationRequest();
+
     void requestLocationUpdates(double intervalMin, ILocationCallback callback) throws LocationPermissionNotGrantedException, LocationProviderDisabledException,
             IntervalValueOutOfRangeException, DeviceLocationDisabledException, AirplaneModeOnException;
 

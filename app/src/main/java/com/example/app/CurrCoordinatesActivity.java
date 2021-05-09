@@ -25,7 +25,8 @@ import com.example.geopositionmodule.exceptions.LocationPermissionNotGrantedExce
 import androidx.annotation.NonNull;
 
 public class CurrCoordinatesActivity extends BaseCoordinatesActivity {
-    private Button showToastButton;
+    private Button sendRequestButton;
+    private Button cancelRequestButton;
     private LocationProvider locationProvider;
     private ProgressBar progressBar;
     private TextView progressMessage;
@@ -37,7 +38,8 @@ public class CurrCoordinatesActivity extends BaseCoordinatesActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_curr_coordinates);
-        showToastButton = findViewById(R.id.request_curr_coordinates_button);
+        sendRequestButton = findViewById(R.id.request_curr_coordinates_button);
+        cancelRequestButton = findViewById(R.id.button_cancel_request);
         progressBar = findViewById(R.id.progressBar);
         progressMessage = findViewById(R.id.request_in_progress_message);
         displayMapButton = findViewById(R.id.button_display_map);
@@ -46,7 +48,8 @@ public class CurrCoordinatesActivity extends BaseCoordinatesActivity {
         Button.OnClickListener listener = new Button.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showToastButton.setEnabled(false);
+                sendRequestButton.setEnabled(false);
+                cancelRequestButton.setEnabled(true);
                 progressBar.setVisibility(View.VISIBLE);
                 progressMessage.setVisibility(View.VISIBLE);
                 menu.setGroupEnabled(R.id.menu_group, false);
@@ -81,13 +84,20 @@ public class CurrCoordinatesActivity extends BaseCoordinatesActivity {
                 }
             }
         };
-        showToastButton.setOnClickListener(listener);
+        sendRequestButton.setOnClickListener(listener);
         displayMapButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final Dialog dialog = new MapDialog(CurrCoordinatesActivity.this, currCoordinates);
                 dialog.setCancelable(true);
                 dialog.show();
+            }
+        });
+        cancelRequestButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                locationProvider.cancelCurrentLocationRequest();
+                resetElementsState();
             }
         });
     }
@@ -121,7 +131,16 @@ public class CurrCoordinatesActivity extends BaseCoordinatesActivity {
     protected void resetElementsState() {
         progressBar.setVisibility(View.INVISIBLE);
         progressMessage.setVisibility(View.INVISIBLE);
-        showToastButton.setEnabled(true);
+        sendRequestButton.setEnabled(true);
+        cancelRequestButton.setEnabled(false);
         menu.setGroupEnabled(R.id.menu_group, true);
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (cancelRequestButton.isEnabled()){
+            locationProvider.cancelCurrentLocationRequest();
+        }
+        super.onDestroy();
     }
 }

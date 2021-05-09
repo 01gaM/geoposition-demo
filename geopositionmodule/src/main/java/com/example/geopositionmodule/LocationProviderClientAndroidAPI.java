@@ -129,7 +129,6 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
         }
     }
 
-    //TODO: add cancellation button
     @Override
     public void requestCurrentLocation(ILocationCallback callback) throws LocationPermissionNotGrantedException, DeviceLocationDisabledException, AirplaneModeOnException, LocationProviderDisabledException {
         checkLocationSettingsEnabled();
@@ -247,9 +246,8 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
         }
     }
 
-//    //TODO
-//    @Override
-//    public void cancelCurrentLocationRequest(){
-//        stopLocationUpdates();
-//    }
+    @Override
+    public void cancelCurrentLocationRequest(){
+        stopLocationUpdates();
+    }
 }
