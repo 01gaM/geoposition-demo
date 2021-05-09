@@ -8,8 +8,8 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.geopositionmodule.LatLng;
-import com.example.geopositionmodule.LocationSupplier;
+import com.example.geolocationmodule.LatLng;
+import com.example.geolocationmodule.LocationSupplier;
 
 public class SpeedActivity extends ServiceBinder {
     private Button showCurrSpeedButton;

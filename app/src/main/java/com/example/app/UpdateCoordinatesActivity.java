@@ -18,8 +18,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.geopositionmodule.AccuracyPriority;
-import com.example.geopositionmodule.LatLng;
+import com.example.geolocationmodule.AccuracyPriority;
+import com.example.geolocationmodule.LatLng;
 
 import java.util.concurrent.TimeUnit;
 

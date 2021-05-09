@@ -8,10 +8,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.example.geopositionmodule.ILocationCallback;
-import com.example.geopositionmodule.LatLng;
-import com.example.geopositionmodule.LocationSupplier;
-import com.example.geopositionmodule.exceptions.LocationPermissionNotGrantedException;
+import com.example.geolocationmodule.ILocationCallback;
+import com.example.geolocationmodule.LatLng;
+import com.example.geolocationmodule.LocationSupplier;
+import com.example.geolocationmodule.exceptions.LocationPermissionNotGrantedException;
 
 public class LastCoordinatesActivity extends BaseCoordinatesActivity {
     private Button showToastButton;

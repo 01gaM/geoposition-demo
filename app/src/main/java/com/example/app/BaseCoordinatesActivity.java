@@ -4,8 +4,8 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 
-import com.example.geopositionmodule.LocationSupplier;
-import com.example.geopositionmodule.exceptions.LocationPermissionNotGrantedException;
+import com.example.geolocationmodule.LocationSupplier;
+import com.example.geolocationmodule.exceptions.LocationPermissionNotGrantedException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;

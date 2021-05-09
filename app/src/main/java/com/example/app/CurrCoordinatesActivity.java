@@ -13,14 +13,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.geopositionmodule.AccuracyPriority;
-import com.example.geopositionmodule.ILocationCallback;
-import com.example.geopositionmodule.LatLng;
-import com.example.geopositionmodule.LocationSupplier;
-import com.example.geopositionmodule.exceptions.AirplaneModeOnException;
-import com.example.geopositionmodule.exceptions.DeviceLocationDisabledException;
-import com.example.geopositionmodule.exceptions.LocationProviderDisabledException;
-import com.example.geopositionmodule.exceptions.LocationPermissionNotGrantedException;
+import com.example.geolocationmodule.AccuracyPriority;
+import com.example.geolocationmodule.ILocationCallback;
+import com.example.geolocationmodule.LatLng;
+import com.example.geolocationmodule.LocationSupplier;
+import com.example.geolocationmodule.exceptions.AirplaneModeOnException;
+import com.example.geolocationmodule.exceptions.DeviceLocationDisabledException;
+import com.example.geolocationmodule.exceptions.LocationProviderDisabledException;
+import com.example.geolocationmodule.exceptions.LocationPermissionNotGrantedException;
 
 import androidx.annotation.NonNull;
 

@@ -16,4 +16,8 @@
     <string name="get_speed_button">Текущая скорость</string>
     <string name="display_on_map">Показать на карте</string>
     <string name="cancel_curr_location_request">Отменить запрос</string>
+    <string name="highAccuracyMode">Наивысшая точность</string>
+    <string name="balancedPowerMode">Средний расход батареи</string>
+    <string name="lowPowerMode">Низкий расход батареи</string>
+    <string name="mapCloseButton">X</string>
 </resources>

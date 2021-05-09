@@ -8,7 +8,7 @@ import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.Button;
 
-import com.example.geopositionmodule.LatLng;
+import com.example.geolocationmodule.LatLng;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
@@ -23,7 +23,7 @@ import androidx.annotation.Nullable;
 public class MapDialog extends Dialog {
     private Button closeButton;
     private MapView mapView;
-    private LatLng startPoint;
+    private final LatLng startPoint;
 
     public MapDialog(@NonNull Context context, LatLng coordinates) {
         super(context);

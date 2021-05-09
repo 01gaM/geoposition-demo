@@ -9,14 +9,14 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 
-import com.example.geopositionmodule.ILocationCallback;
-import com.example.geopositionmodule.LatLng;
-import com.example.geopositionmodule.LocationSupplier;
-import com.example.geopositionmodule.exceptions.AirplaneModeOnException;
-import com.example.geopositionmodule.exceptions.DeviceLocationDisabledException;
-import com.example.geopositionmodule.exceptions.IntervalValueOutOfRangeException;
-import com.example.geopositionmodule.exceptions.LocationProviderDisabledException;
-import com.example.geopositionmodule.exceptions.LocationPermissionNotGrantedException;
+import com.example.geolocationmodule.ILocationCallback;
+import com.example.geolocationmodule.LatLng;
+import com.example.geolocationmodule.LocationSupplier;
+import com.example.geolocationmodule.exceptions.AirplaneModeOnException;
+import com.example.geolocationmodule.exceptions.DeviceLocationDisabledException;
+import com.example.geolocationmodule.exceptions.IntervalValueOutOfRangeException;
+import com.example.geolocationmodule.exceptions.LocationProviderDisabledException;
+import com.example.geolocationmodule.exceptions.LocationPermissionNotGrantedException;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;

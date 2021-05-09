@@ -16,7 +16,7 @@
             android:id="@+id/button_close"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:text="X"
+            android:text="@string/mapCloseButton"
             android:textAlignment="center"
             android:textSize="14sp"
             android:layout_margin="10dp"

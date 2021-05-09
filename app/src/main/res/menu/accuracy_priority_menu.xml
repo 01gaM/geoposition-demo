@@ -4,13 +4,13 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/menu_priority_high_accuracy"
-            android:title="Наивысшая точность"
+            android:title="@string/highAccuracyMode"
             android:checked="true"/>
         <item
             android:id="@+id/menu_priority_balanced_power_accuracy"
-            android:title="Средний расход батареи"/>
+            android:title="@string/balancedPowerMode"/>
         <item
             android:id="@+id/menu_priority_low_power"
-            android:title="Низкий расход батареи"/>
+            android:title="@string/lowPowerMode"/>
     </group>
 </menu>

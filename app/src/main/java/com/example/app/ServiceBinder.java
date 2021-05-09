@@ -7,7 +7,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 
-import com.example.geopositionmodule.LocationSupplier;
+import com.example.geolocationmodule.LocationSupplier;
 
 public abstract class ServiceBinder extends BaseCoordinatesActivity {
     protected Intent intent;
