@@ -39,7 +39,6 @@ public class LocationProvider implements ILocationProvider {
             return new LocationProviderClientAndroidAPI(context);
         }
         return new LocationProviderClientGoogleAPI(context);
-        //return new LocationProviderClientAndroidAPI(context);
     }
 
     /**
@@ -54,7 +53,6 @@ public class LocationProvider implements ILocationProvider {
             //Google Play Services is missing or update is required
             throw new GooglePlayServicesNotAvailableException(resultCode);
         }
-        //throw new GooglePlayServicesNotAvailableException(2);
     }
 
     @Override

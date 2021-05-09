@@ -34,6 +34,9 @@ import androidx.core.app.ActivityCompat;
 public class LocationProviderClientAndroidAPI extends LocationProviderClient {
     private final LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
     private LocationListener updateLocationListener;
+    private LocationListener currLocationListener;
+    private CountDownTimer updateLocationTimer = null;
+    private CountDownTimer currLocationTimer = null;
     /**
      * The minimum location update interval in minutes (equals 0.33 minutes ~ 20 seconds) used instead of {@link #MINIMUM_UPDATE_INTERVAL_NETWORK}
      * when {@link #locationManager} requests {@link #requestLocationUpdates(double, ILocationCallback)} with {@link LocationManager#NETWORK_PROVIDER}
@@ -41,7 +44,6 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
      */
     public static final double MINIMUM_UPDATE_INTERVAL_NETWORK = 0.33;
     private final long REQUEST_TIMEOUT_MILLIS = TimeUnit.MINUTES.toMillis(1);
-    private CountDownTimer updateLocationTimer = null;
     private BroadcastReceiver airplaneModeUpdatesReceiver = null;
 
     public LocationProviderClientAndroidAPI(Context context) {
@@ -71,9 +73,11 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
         switch (accuracyPriority) {
             case PRIORITY_LOW_POWER:
                 criteria.setPowerRequirement(Criteria.POWER_LOW);
+                criteria.setAccuracy(Criteria.NO_REQUIREMENT);
                 break;
             case PRIORITY_BALANCED_POWER_ACCURACY:
                 criteria.setPowerRequirement(Criteria.POWER_MEDIUM);
+                criteria.setAccuracy(Criteria.ACCURACY_COARSE);
                 break;
             case PRIORITY_HIGH_ACCURACY:
                 criteria.setPowerRequirement(Criteria.POWER_HIGH);
@@ -89,11 +93,10 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
         if (providerName.equals(LocationManager.NETWORK_PROVIDER)) {
             checkAirplaneModeOff();
         }
-        // If no suitable enabled provider is found, null is returned
         if (providerName != null) {
             return providerName;
         }
-        throw new LocationProviderDisabledException(); //Доступный подходящий провайдер данных о местоположении не найден
+        throw new LocationProviderDisabledException(); //If no suitable enabled provider is found, providerName is null
     }
 
     /**
@@ -138,13 +141,13 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
             if (providerName.equals(LocationManager.NETWORK_PROVIDER)) {
                 checkAirplaneModeStatus(callback);
             }
-            updateLocationTimer = createTimeoutTimer(callback);
-            updateLocationListener = getLocationListener(callback, true);
+            currLocationTimer = createTimeoutTimer(callback);
+            currLocationListener = getLocationListener(callback, true);
             locationManager.requestLocationUpdates(providerName,
                     TimeUnit.MINUTES.toMillis(0),
                     0,
-                    updateLocationListener);
-            updateLocationTimer.start();
+                    currLocationListener);
+            currLocationTimer.start();
         } else {
             throw new LocationPermissionNotGrantedException();
         }
@@ -210,11 +213,12 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
         return new LocationListener() {
             @Override
             public void onLocationChanged(@NonNull Location location) {
-                updateLocationTimer.cancel();
                 callback.callOnSuccess(new LatLng(location));
                 if (isSingleUpdate) {
-                    stopLocationUpdates();
+                    cancelCurrentLocationRequest();
                 } else {
+                    //restart timer
+                    updateLocationTimer.cancel();
                     updateLocationTimer.start();
                 }
             }
@@ -222,7 +226,11 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
             @Override
             public void onProviderDisabled(@NonNull String provider) {
                 handleRequestFailure(callback);
-                stopLocationUpdates();
+                if (isSingleUpdate) {
+                    cancelCurrentLocationRequest();
+                } else {
+                    stopLocationUpdates();
+                }
             }
 
             @Override
@@ -233,21 +241,27 @@ public class LocationProviderClientAndroidAPI extends LocationProviderClient {
 
     @Override
     public void stopLocationUpdates() {
+        cancelRequest(updateLocationTimer, updateLocationListener);
+        updateLocationListener = null;
+    }
+
+    @Override
+    public void cancelCurrentLocationRequest() {
+        cancelRequest(currLocationTimer, currLocationListener);
+        currLocationListener = null;
+    }
+
+    private void cancelRequest(CountDownTimer timer, LocationListener locationListener) {
         if (airplaneModeUpdatesReceiver != null) {
             context.unregisterReceiver(airplaneModeUpdatesReceiver);
             airplaneModeUpdatesReceiver = null;
         }
-        if (updateLocationTimer != null) {
-            updateLocationTimer.cancel();
-        }
-        if (updateLocationListener != null) {
-            locationManager.removeUpdates(updateLocationListener);
-            updateLocationListener = null;
-        }
-    }
 
-    @Override
-    public void cancelCurrentLocationRequest(){
-        stopLocationUpdates();
+        if (timer != null) {
+            timer.cancel();
+        }
+        if (locationListener != null) {
+            locationManager.removeUpdates(locationListener);
+        }
     }
 }
