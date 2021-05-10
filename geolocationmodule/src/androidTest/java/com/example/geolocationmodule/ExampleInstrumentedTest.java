@@ -21,9 +21,9 @@ public class ExampleInstrumentedTest {
    public void setAccuracyPriority_GoogleAPI(){
        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
        LocationSupplierClientGoogleAPI locationProviderClient = new LocationSupplierClientGoogleAPI(appContext);
-       assertEquals(AccuracyPriority.PRIORITY_HIGH_ACCURACY.getCode(), locationProviderClient.getAccuracyPriority().getCode()); //default value
+       assertEquals(AccuracyPriority.PRIORITY_HIGH_ACCURACY.code, locationProviderClient.getAccuracyPriority().code); //default value
        locationProviderClient.setAccuracyPriority(AccuracyPriority.PRIORITY_LOW_POWER);
-       assertEquals(AccuracyPriority.PRIORITY_LOW_POWER.getCode(), locationProviderClient.getAccuracyPriority().getCode());
+       assertEquals(AccuracyPriority.PRIORITY_LOW_POWER.code, locationProviderClient.getAccuracyPriority().code);
    }
 
     @Test
@@ -41,26 +41,4 @@ public class ExampleInstrumentedTest {
         locationProviderClient.stopLocationUpdates();
         assertNull(locationProviderClient.getUpdateLocationListener());
     }
-
-//    @Test
-//    public void stopLocationUpdates_activeUpdate_GoogleAPI(){
-//        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-//        LocationProviderClientGoogleAPI locationProviderClient = new LocationProviderClientGoogleAPI(appContext);
-//        try {
-//            locationProviderClient.requestLocationUpdates(1, new ILocationCallback() {
-//                @Override
-//                public void callOnSuccess(LatLng location) {
-//                }
-//
-//                @Override
-//                public void callOnFail(Exception e) {
-//                }
-//            });
-//        } catch (NoLocationAccessException | LocationProviderDisabledException | IntervalValueOutOfRangeException e) {
-//            e.printStackTrace();
-//        }
-//        assertNotNull(locationProviderClient.getUpdateLocationCallback());
-//        locationProviderClient.stopLocationUpdates();
-//        assertNull(locationProviderClient.getUpdateLocationCallback());
-//    }
 }

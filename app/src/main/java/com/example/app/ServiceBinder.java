@@ -7,11 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
-import android.view.Gravity;
-import android.view.View;
-import android.widget.Toast;
 
-import com.example.geolocationmodule.LatLng;
 import com.example.geolocationmodule.LocationSupplier;
 
 public abstract class ServiceBinder extends BaseCoordinatesActivity {

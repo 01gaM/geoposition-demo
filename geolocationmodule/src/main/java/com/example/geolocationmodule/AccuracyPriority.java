@@ -12,8 +12,4 @@ public enum AccuracyPriority {
     AccuracyPriority(int code) {
         this.code = code;
     }
-
-    public int getCode() {
-        return code;
-    }
 }

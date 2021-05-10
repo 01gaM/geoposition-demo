@@ -93,7 +93,7 @@ public class LocationSupplierClientGoogleAPI extends LocationSupplierClient {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                 ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             currLocationCancellationToken = new CancellationTokenSource();
-            this.fusedLocationProviderClient.getCurrentLocation(accuracyPriority.getCode(), currLocationCancellationToken.getToken())
+            this.fusedLocationProviderClient.getCurrentLocation(accuracyPriority.code, currLocationCancellationToken.getToken())
                     .addOnSuccessListener(new OnSuccessListener<Location>() {
                         @Override
                         public void onSuccess(Location location) {
@@ -130,7 +130,7 @@ public class LocationSupplierClientGoogleAPI extends LocationSupplierClient {
             long millis = (long) (intervalMin * 60 * 1000);
             locationRequest.setInterval(millis);
             locationRequest.setFastestInterval(millis);
-            locationRequest.setPriority(accuracyPriority.getCode());
+            locationRequest.setPriority(accuracyPriority.code);
 
             LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
             builder.addLocationRequest(locationRequest);

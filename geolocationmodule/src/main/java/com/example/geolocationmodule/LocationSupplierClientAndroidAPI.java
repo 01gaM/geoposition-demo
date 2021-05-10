@@ -90,8 +90,9 @@ public class LocationSupplierClientAndroidAPI extends LocationSupplierClient {
     private String getAvailableProviderName() throws LocationProviderDisabledException, AirplaneModeOnException {
         Criteria criteria = getCriteria();
         String providerName = locationManager.getBestProvider(criteria, true);
+        //If no suitable enabled provider is found, providerName is null
         if (providerName == null) {
-            throw new LocationProviderDisabledException(); //If no suitable enabled provider is found, providerName is null
+            throw new LocationProviderDisabledException();
         }
         if (providerName.equals(LocationManager.NETWORK_PROVIDER)) {
             checkAirplaneModeOff();
