@@ -90,13 +90,13 @@ public class LocationSupplierClientAndroidAPI extends LocationSupplierClient {
     private String getAvailableProviderName() throws LocationProviderDisabledException, AirplaneModeOnException {
         Criteria criteria = getCriteria();
         String providerName = locationManager.getBestProvider(criteria, true);
+        if (providerName == null) {
+            throw new LocationProviderDisabledException(); //If no suitable enabled provider is found, providerName is null
+        }
         if (providerName.equals(LocationManager.NETWORK_PROVIDER)) {
             checkAirplaneModeOff();
         }
-        if (providerName != null) {
-            return providerName;
-        }
-        throw new LocationProviderDisabledException(); //If no suitable enabled provider is found, providerName is null
+        return providerName;
     }
 
     /**
@@ -158,7 +158,7 @@ public class LocationSupplierClientAndroidAPI extends LocationSupplierClient {
      *
      * @param intervalMin An input value for {@link #requestLocationUpdates(double, ILocationCallback)} method.
      * @throws NetworkUpdateIntervalOutOfRangeException Exception is thrown when input value is
-     *                                          less than {@link #MINIMUM_UPDATE_INTERVAL_NETWORK}.
+     *                                                  less than {@link #MINIMUM_UPDATE_INTERVAL_NETWORK}.
      */
     private void checkNetworkUpdateIntervalValue(double intervalMin) throws NetworkUpdateIntervalOutOfRangeException {
         if (intervalMin < MINIMUM_UPDATE_INTERVAL_NETWORK) {
