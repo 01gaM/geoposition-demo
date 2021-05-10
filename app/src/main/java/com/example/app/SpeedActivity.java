@@ -58,32 +58,13 @@ public class SpeedActivity extends ServiceBinder {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == SPEED_REQUEST_CODE) {
-            Exception e = updateService.getCurrException();
-            switch (resultCode) {
-                case (UpdateService.UPDATE_SUCCEEDED):
-                    LatLng lastUpdatedLocation = updateService.getLocation();
-                    tvSpeedMessage.setText(R.string.message_current_speed);
-                    progressBar.setVisibility(View.INVISIBLE);
-                    tvSpeedValue.setText(String.format("%s м/с", lastUpdatedLocation.getSpeed()));
-                    tvSpeedValue.setVisibility(View.VISIBLE);
-                    stopSpeedUpdatesButton.setEnabled(true);
-                    break;
-                case (UpdateService.UPDATE_FAILED):
-                    handleException(e);
-                    break;
-                case (UpdateService.LOCATION_PERMISSION_NOT_GRANTED):
-                    if (isPermissionRequestedFirstTime || shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)
-                            && shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                        requestPermissions();
-                    } else {
-                        handleException(e);
-                    }
-                    break;
-            }
-        }
+    protected void onUpdateSuccess() {
+        LatLng lastUpdatedLocation = updateService.getLocation();
+        tvSpeedMessage.setText(R.string.message_current_speed);
+        progressBar.setVisibility(View.INVISIBLE);
+        tvSpeedValue.setText(String.format("%s м/с", lastUpdatedLocation.getSpeed()));
+        tvSpeedValue.setVisibility(View.VISIBLE);
+        stopSpeedUpdatesButton.setEnabled(true);
     }
 
     @Override

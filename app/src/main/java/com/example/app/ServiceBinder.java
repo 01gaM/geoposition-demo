@@ -1,12 +1,17 @@
 package com.example.app;
 
+import android.Manifest;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.Toast;
 
+import com.example.geolocationmodule.LatLng;
 import com.example.geolocationmodule.LocationSupplier;
 
 public abstract class ServiceBinder extends BaseCoordinatesActivity {
@@ -54,5 +59,31 @@ public abstract class ServiceBinder extends BaseCoordinatesActivity {
 
     protected void setRequestCode(int requestCode){
         this.requestCode = requestCode;
+    }
+
+    protected abstract void onUpdateSuccess();
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == this.requestCode) {
+            Exception e = updateService.getCurrException();
+            switch (resultCode) {
+                case (UpdateService.UPDATE_SUCCEEDED):
+                    onUpdateSuccess();
+                    break;
+                case (UpdateService.UPDATE_FAILED):
+                    handleException(e);
+                    break;
+                case (UpdateService.LOCATION_PERMISSION_NOT_GRANTED):
+                    if (isPermissionRequestedFirstTime || shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)
+                            && shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                        requestPermissions();
+                    } else {
+                        handleException(e);
+                    }
+                    break;
+            }
+        }
     }
 }

@@ -139,41 +139,22 @@ public class UpdateCoordinatesActivity extends ServiceBinder {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == UPDATE_REQUEST_CODE) {
-            Exception e = updateService.getCurrException();
-            switch (resultCode) {
-                case (UpdateService.UPDATE_SUCCEEDED):
-                    if (shouldShowProgressBar) {
-                        double minutes = Double.parseDouble(editDelay.getText().toString());
-                        startTimer(minutes);
-                        progressBar.setVisibility(View.INVISIBLE);
-                        shouldShowProgressBar = false;
-                    }
-                    LatLng lastUpdatedLocation = updateService.getLocation();
-                    Toast toast = Toast.makeText(UpdateCoordinatesActivity.this, lastUpdatedLocation.toString(), Toast.LENGTH_LONG);
-                    toast.setGravity(Gravity.TOP, 0, 400);
-                    toast.show();
-                    cTimer.start(); //restart timer
-                    displayMapButton.setEnabled(true);
-                    currCoordinates = lastUpdatedLocation;
-                    if (mapDialog != null) {
-                        mapDialog.setCurrentPoint(lastUpdatedLocation);
-                    }
-                    break;
-                case (UpdateService.UPDATE_FAILED):
-                    handleException(e);
-                    break;
-                case (UpdateService.LOCATION_PERMISSION_NOT_GRANTED):
-                    if (isPermissionRequestedFirstTime || shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)
-                            && shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                        requestPermissions();
-                    } else {
-                        handleException(e);
-                    }
-                    break;
-            }
+    protected void onUpdateSuccess() {
+        if (shouldShowProgressBar) {
+            double minutes = Double.parseDouble(editDelay.getText().toString());
+            startTimer(minutes);
+            progressBar.setVisibility(View.INVISIBLE);
+            shouldShowProgressBar = false;
+        }
+        LatLng lastUpdatedLocation = updateService.getLocation();
+        Toast toast = Toast.makeText(UpdateCoordinatesActivity.this, lastUpdatedLocation.toString(), Toast.LENGTH_LONG);
+        toast.setGravity(Gravity.TOP, 0, 400);
+        toast.show();
+        cTimer.start(); //restart timer
+        displayMapButton.setEnabled(true);
+        currCoordinates = lastUpdatedLocation;
+        if (mapDialog != null) {
+            mapDialog.setCurrentPoint(lastUpdatedLocation);
         }
     }
 

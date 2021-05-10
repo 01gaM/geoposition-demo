@@ -14,7 +14,7 @@ import com.example.geolocationmodule.LocationSupplier;
 import com.example.geolocationmodule.exceptions.LocationPermissionNotGrantedException;
 
 public class LastCoordinatesActivity extends BaseCoordinatesActivity {
-    private Button showToastButton;
+    private Button getLastLocationButton;
     private Button displayMapButton;
     private LatLng lastCoordinates = null;
 
@@ -22,7 +22,7 @@ public class LastCoordinatesActivity extends BaseCoordinatesActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_last_coordinates);
-        showToastButton = findViewById(R.id.request_last_coordinates_button);
+        getLastLocationButton = findViewById(R.id.request_last_coordinates_button);
         locationSupplier = new LocationSupplier(LastCoordinatesActivity.this);
         displayMapButton = findViewById(R.id.button_display_map);
         Button.OnClickListener listener = new Button.OnClickListener() {
@@ -55,7 +55,7 @@ public class LastCoordinatesActivity extends BaseCoordinatesActivity {
                 }
             }
         };
-        showToastButton.setOnClickListener(listener);
+        getLastLocationButton.setOnClickListener(listener);
         displayMapButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
