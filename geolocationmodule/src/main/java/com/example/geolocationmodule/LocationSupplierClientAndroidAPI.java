@@ -79,7 +79,8 @@ public class LocationSupplierClientAndroidAPI extends LocationSupplierClient {
                 criteria.setPowerRequirement(Criteria.POWER_MEDIUM);
                 criteria.setAccuracy(Criteria.ACCURACY_COARSE);
                 break;
-            case PRIORITY_HIGH_ACCURACY:
+            default:
+                //PRIORITY_HIGH_ACCURACY
                 criteria.setPowerRequirement(Criteria.POWER_HIGH);
                 criteria.setAccuracy(Criteria.ACCURACY_FINE);
                 break;
