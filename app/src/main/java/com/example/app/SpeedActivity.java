@@ -17,7 +17,6 @@ public class SpeedActivity extends ServiceBinder {
     private TextView tvSpeedValue;
     private ProgressBar progressBar;
     private TextView tvSpeedMessage;
-    private final int SPEED_REQUEST_CODE = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +27,7 @@ public class SpeedActivity extends ServiceBinder {
         tvSpeedValue = findViewById(R.id.text_current_speed_value);
         progressBar = findViewById(R.id.progress_bar_speed);
         tvSpeedMessage = findViewById(R.id.text_current_speed_message);
-        setRequestCode(SPEED_REQUEST_CODE);
+        requestCode = 2;
         doBindService();
 
         Button.OnClickListener listener = new Button.OnClickListener() {

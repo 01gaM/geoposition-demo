@@ -1,8 +1,6 @@
 package com.example.app;
 
-import android.Manifest;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.Editable;
@@ -38,7 +36,6 @@ public class UpdateCoordinatesActivity extends ServiceBinder {
     private Menu menu;
     private ProgressBar progressBar;
     private boolean shouldShowProgressBar = true; //progress bar should be shown only before first location fix
-    private final int UPDATE_REQUEST_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +48,7 @@ public class UpdateCoordinatesActivity extends ServiceBinder {
         editDelay = findViewById(R.id.edit_text_interval);
         displayMapButton = findViewById(R.id.button_display_map);
         progressBar = findViewById(R.id.progress_bar_update);
-        setRequestCode(UPDATE_REQUEST_CODE);
+        requestCode = 1;
         doBindService();
 
         editDelay.addTextChangedListener(new TextWatcher() {

@@ -57,10 +57,6 @@ public abstract class ServiceBinder extends BaseCoordinatesActivity {
         }
     }
 
-    protected void setRequestCode(int requestCode){
-        this.requestCode = requestCode;
-    }
-
     protected abstract void onUpdateSuccess();
 
     @Override
