@@ -98,6 +98,9 @@ public class LocationSupplierClientAndroidAPI extends LocationSupplierClient {
         if (providerName.equals(LocationManager.NETWORK_PROVIDER)) {
             checkAirplaneModeOff();
         }
+        if (providerName.equals(LocationManager.GPS_PROVIDER) && accuracyPriority == AccuracyPriority.PRIORITY_LOW_POWER) {
+            throw new LocationProviderDisabledException(); //GPS is not suitable for low power mode
+        }
         return providerName;
     }
 
