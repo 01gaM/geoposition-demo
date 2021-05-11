@@ -6,6 +6,6 @@ public class LocationPermissionNotGrantedException extends Exception {
     @Nullable
     @Override
     public String getMessage() {
-        return "Нет разрешения на доступ к геопозиции.";
+        return "Нет разрешения на доступ к геолокации.";
     }
 }
