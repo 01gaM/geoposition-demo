@@ -12,7 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
-public abstract class BaseCoordinatesActivity extends AppCompatActivity implements Alertable, ActivityCompat.OnRequestPermissionsResultCallback {
+public abstract class BaseCoordinatesActivity extends AppCompatActivity implements Alertable {
     protected static boolean isPermissionRequestedFirstTime;
     private final int REQUEST_LOCATION_PERMISSION_CODE = 0;
     protected LocationSupplier locationSupplier;
