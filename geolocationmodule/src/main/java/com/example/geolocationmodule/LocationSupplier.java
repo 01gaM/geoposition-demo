@@ -11,7 +11,10 @@ import com.example.geolocationmodule.exceptions.LocationPermissionNotGrantedExce
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
-
+/**
+ * An instance of this class should be used to call functions of {@link ILocationSupplier} interface
+ * This is the only instance that user has to create to use geolocation module functionality
+ */
 public class LocationSupplier implements ILocationSupplier {
     private final Context context; //the context in which this LocationProvider instance was created
     private final LocationSupplierClient locationSupplierClient;
@@ -31,6 +34,12 @@ public class LocationSupplier implements ILocationSupplier {
         this.locationSupplierClient = createLocationSupplierClient();
     }
 
+    /**
+     * Checks Google Play services availability and creates a new LocationSupplierClient instance.
+     *
+     * @return If Google Play services are available and up-to-date then a {@link LocationSupplierClientGoogleAPI} instance will be returned,
+     * else a {@link LocationSupplierClientAndroidAPI} will be returned.
+     */
     private LocationSupplierClient createLocationSupplierClient() {
         try {
             checkGooglePlayServicesAvailable(context);
@@ -42,9 +51,10 @@ public class LocationSupplier implements ILocationSupplier {
     }
 
     /**
-     * This method checks whether the Google Play services APK is available and up-to-date on this device or not.
+     * Checks whether the Google Play services APK is available and up-to-date on this device or not
      *
-     * @throws GooglePlayServicesNotAvailableException Exception is thrown when the Google Play services APK is not available or it's version is out-of-date on this device.
+     * @param context a context in which Google Play services availability is being checked. Used for {@link GoogleApiAvailability#isGooglePlayServicesAvailable(Context)} method
+     * @throws GooglePlayServicesNotAvailableException if the Google Play services APK is not available or it's version is out-of-date on this device
      */
     public static void checkGooglePlayServicesAvailable(Context context) throws GooglePlayServicesNotAvailableException {
         GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();

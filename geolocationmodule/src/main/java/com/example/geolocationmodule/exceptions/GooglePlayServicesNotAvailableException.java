@@ -7,6 +7,10 @@ import java.util.Locale;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+/**
+ * Thrown if the Google Play services APK is not available or it's version is out-of-date on this device
+ * Minimum version of Google Play services supported by Fused Location Provider API is 11.0
+ */
 public class GooglePlayServicesNotAvailableException extends Exception {
     private final int connectionResultCode;
 

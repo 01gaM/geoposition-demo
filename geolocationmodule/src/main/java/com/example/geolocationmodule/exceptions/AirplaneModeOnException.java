@@ -2,6 +2,9 @@ package com.example.geolocationmodule.exceptions;
 
 import androidx.annotation.Nullable;
 
+/**
+ * Thrown if airplane mode is on and data from network provider is required
+ */
 public class AirplaneModeOnException extends Exception {
     @Nullable
     @Override

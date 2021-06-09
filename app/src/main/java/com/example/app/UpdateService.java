@@ -144,7 +144,8 @@ public class UpdateService extends Service {
             } catch (PendingIntent.CanceledException canceledException) {
                 canceledException.printStackTrace();
             }
-        } catch (LocationProviderDisabledException | IntervalValueOutOfRangeException | AirplaneModeOnException | DeviceLocationDisabledException e) {
+        } catch (LocationProviderDisabledException
+                | IntervalValueOutOfRangeException | AirplaneModeOnException | DeviceLocationDisabledException e) {
             currException = e;
             stopForeground(true);
             try {

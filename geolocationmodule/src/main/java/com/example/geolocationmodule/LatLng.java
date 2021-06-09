@@ -4,6 +4,10 @@ import android.location.Location;
 
 import androidx.annotation.NonNull;
 
+/**
+ * This class describes model of location data retrieved by location requests
+ * Gets data from {@link Location} instance and stores longitude, latitude and speed values only
+ */
 public class LatLng {
     private final double longitude;
     private final double latitude;

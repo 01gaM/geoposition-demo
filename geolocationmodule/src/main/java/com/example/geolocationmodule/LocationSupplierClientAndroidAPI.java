@@ -50,6 +50,13 @@ public class LocationSupplierClientAndroidAPI extends LocationSupplierClient {
         super(context);
     }
 
+    /**
+     * Creates timeout timer for a location request
+     * Timeout is set to 1 minute in {@link #REQUEST_TIMEOUT_MILLIS}
+     *
+     * @param callback a callback that will receive exception if timer runs out
+     * @return a timeout timer
+     */
     private CountDownTimer createTimeoutTimer(ILocationCallback callback) {
         return new CountDownTimer(REQUEST_TIMEOUT_MILLIS, TimeUnit.SECONDS.toMillis(5)) {
             @Override
@@ -68,6 +75,11 @@ public class LocationSupplierClientAndroidAPI extends LocationSupplierClient {
         return updateLocationListener;
     }
 
+    /**
+     * Checks value of {@link #accuracyPriority} field and creates a corresponding criteria
+     *
+     * @return a {@link Criteria} instance based on current value of {@link #accuracyPriority} field
+     */
     private Criteria getCriteria() {
         Criteria criteria = new Criteria();
         switch (accuracyPriority) {
@@ -88,6 +100,13 @@ public class LocationSupplierClientAndroidAPI extends LocationSupplierClient {
         return criteria;
     }
 
+    /**
+     * Gets criteria from {@link #getCriteria()} method and returns the best enabled location provider name
+     *
+     * @return a location provider name that meets the criteria based on {@link #accuracyPriority} field value
+     * @throws LocationProviderDisabledException if no suitable enabled provider is found and providerName is null
+     * @throws AirplaneModeOnException           if providerName is "network" and {@link #checkAirplaneModeOff} method detected that airplane mode is on
+     */
     private String getAvailableProviderName() throws LocationProviderDisabledException, AirplaneModeOnException {
         Criteria criteria = getCriteria();
         String providerName = locationManager.getBestProvider(criteria, true);
@@ -104,12 +123,6 @@ public class LocationSupplierClientAndroidAPI extends LocationSupplierClient {
         return providerName;
     }
 
-    /**
-     * This method returns last known location from a cached location value.
-     * This will never activate sensors to compute a new location, and will only ever return a cached location.
-     *
-     * @throws NullPointerException Exception is thrown when location is null.
-     */
     @Override
     public void getLastKnownLocation(ILocationCallback callback) throws LocationPermissionNotGrantedException {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
@@ -159,11 +172,10 @@ public class LocationSupplierClientAndroidAPI extends LocationSupplierClient {
     }
 
     /**
-     * This method checks whether the input interval value in minutes is out of range or not.
+     * Checks the lower bound of interval value when using network provider data by {@link LocationManager}
      *
-     * @param intervalMin An input value for {@link #requestLocationUpdates(double, ILocationCallback)} method.
-     * @throws NetworkUpdateIntervalOutOfRangeException Exception is thrown when input value is
-     *                                                  less than {@link #MINIMUM_UPDATE_INTERVAL_NETWORK}.
+     * @param intervalMin an input value for {@link #requestLocationUpdates(double, ILocationCallback)} method
+     * @throws NetworkUpdateIntervalOutOfRangeException if input value is less than {@link #MINIMUM_UPDATE_INTERVAL_NETWORK}
      */
     private void checkNetworkUpdateIntervalValue(double intervalMin) throws NetworkUpdateIntervalOutOfRangeException {
         if (intervalMin < MINIMUM_UPDATE_INTERVAL_NETWORK) {
@@ -171,6 +183,11 @@ public class LocationSupplierClientAndroidAPI extends LocationSupplierClient {
         }
     }
 
+    /**
+     * Checks airplane mode settings status
+     *
+     * @param callback a callback which will receive {@link AirplaneModeOnException} if airplane mode turns on
+     */
     private void checkAirplaneModeStatus(ILocationCallback callback) {
         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED);
         BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -213,6 +230,14 @@ public class LocationSupplierClientAndroidAPI extends LocationSupplierClient {
         }
     }
 
+    /**
+     * Creates a {@link LocationListener} for {@link #requestCurrentLocation(ILocationCallback)} or {@link #requestLocationUpdates(double, ILocationCallback)} method
+     *
+     * @param callback       a callback that handles a request result
+     * @param isSingleUpdate if true, then {@link LocationListener} is being created for {@link #requestCurrentLocation(ILocationCallback)} method,
+     *                       else - it is being created for {@link #requestLocationUpdates(double, ILocationCallback)} method
+     * @return a {@link LocationListener} instance that is to be set either to {@link #currLocationListener} or {@link #updateLocationListener} variable
+     */
     private LocationListener getLocationListener(ILocationCallback callback, boolean isSingleUpdate) {
         return new LocationListener() {
             @Override
@@ -255,12 +280,17 @@ public class LocationSupplierClientAndroidAPI extends LocationSupplierClient {
         currLocationListener = null;
     }
 
+    /**
+     * Resets state of objects used for location requests in {@link #requestCurrentLocation(ILocationCallback)} or {@link #requestLocationUpdates(double, ILocationCallback)} method
+     *
+     * @param timer            a timer that is to be reset
+     * @param locationListener a location listener that is to be reset
+     */
     private void cancelRequest(CountDownTimer timer, LocationListener locationListener) {
         if (airplaneModeUpdatesReceiver != null) {
             context.unregisterReceiver(airplaneModeUpdatesReceiver);
             airplaneModeUpdatesReceiver = null;
         }
-
         if (timer != null) {
             timer.cancel();
         }
