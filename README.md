@@ -85,3 +85,5 @@ AccuracyPriority – перечисление, содержащее поддер
 
 ## Страница на Notion
 https://www.notion.so/3e9c6602b4894615bacaad862874a19b
+### UML диаграммы
+https://www.notion.so/UML-223f73ec3c9342c2b6f4943463acea49
